@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shambhavi Tuli — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f1ead9;
+    --paper-line:#c7d3de;
+    --ink:#211e1a;
+    --rust:#b1502f;
+    --denim:#3a5a8c;
+    --mustard:#dea63f;
+    --sky:#7fabc4;
+    --f-display:'Archivo Black', sans-serif;
+    --f-mono:'Space Mono', monospace;
+    --f-hand:'Caveat', cursive;
+    --f-ui:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#000;font-family:var(--f-ui);}
+
+  .stage-wrap{width:100vw;height:100vh;overflow:hidden;background:#000; position:relative; z-index:1;}
+  .stage{width:100%;height:100%;position:relative;}
+
+  .desktop{position:absolute; inset:0; overflow:hidden;}
+  .desktop > .wallpaper-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+
+  /* ---------- boot loading screen ---------- */
+  #bootScreen{position:fixed; inset:0; z-index:100000; background:
+      radial-gradient(circle at 15% 10%, rgba(90,110,130,0.55), transparent 55%),
+      radial-gradient(circle at 88% 92%, rgba(120,80,40,0.5), transparent 55%),
+      linear-gradient(160deg, #1b2530, #0a0d12 60%, #05070a);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity 0.7s ease; }
+  #bootScreen.hide{opacity:0; pointer-events:none;}
+  #bootScreen svg{width:92px; height:92px; margin-bottom:52px;}
+  .boot-text{color:#f2f2f2; font-family:var(--f-ui); font-size:14px; margin-bottom:14px; letter-spacing:0.01em;}
+  .boot-bar-track{width:250px; height:5px; border-radius:3px; background:rgba(255,255,255,0.18); overflow:hidden;}
+
+  /* ---------- guided onboarding tour ---------- */
+  #tourSpotlight{position:absolute; z-index:90000; border-radius:16px;
+    box-shadow:0 0 0 9999px rgba(10,12,16,0.68); pointer-events:none;
+    transition:top 0.45s cubic-bezier(.4,.1,.2,1), left 0.45s cubic-bezier(.4,.1,.2,1),
+      width 0.45s cubic-bezier(.4,.1,.2,1), height 0.45s cubic-bezier(.4,.1,.2,1), opacity 0.3s ease;}
+  #tourBubble{position:absolute; z-index:90001; width:270px; background:#1d1f24; color:#fff;
+    border-radius:14px; padding:18px 20px; box-shadow:0 20px 44px rgba(0,0,0,0.45);
+    font-family:var(--f-ui); transition:top 0.45s cubic-bezier(.4,.1,.2,1), left 0.45s cubic-bezier(.4,.1,.2,1), opacity 0.3s ease;}
+  #tourBubble .tour-step{font-size:11px; font-weight:700; letter-spacing:0.05em; color:#9ea3ad; margin-bottom:8px;}
+  #tourBubble .tour-text{font-size:14px; line-height:1.5; margin-bottom:16px;}
+  #tourBubble .tour-actions{display:flex; align-items:center; justify-content:space-between;}
+  #tourBubble .tour-skip{font-size:12.5px; color:#9ea3ad; cursor:pointer; background:none; border:none; font-family:var(--f-ui); padding:0;}
+  #tourBubble .tour-skip:hover{color:#fff;}
+  #tourBubble .tour-next{font-size:12.5px; font-weight:700; color:#1d1f24; background:#fff; border:none; border-radius:20px;
+    padding:8px 18px; cursor:pointer; font-family:var(--f-ui);}
+  #tourBubble .tour-next:hover{background:#e6e6e6;}
+  #tourBubble::before{content:''; position:absolute; width:14px; height:14px; background:#1d1f24; transform:rotate(45deg);}
+  #tourBubble[data-arrow="bottom"]::before{bottom:-6px; left:50%; margin-left:-7px;}
+  #tourBubble[data-arrow="top"]::before{top:-6px; left:50%; margin-left:-7px;}
+  #tourBubble[data-arrow="right"]::before{right:-6px; top:50%; margin-top:-7px;}
+  #tourBubble[data-arrow="left"]::before{left:-6px; top:50%; margin-top:-7px;}
+  .boot-bar-fill{width:0%; height:100%; background:#e6e6e6; border-radius:3px; animation:bootFill 3s linear forwards;}
+  @keyframes bootFill{
+    0%{width:0%;}
+    12%{width:18%;}
+    24%{width:24%;}
+    40%{width:47%;}
+    48%{width:49%;}
+    62%{width:68%;}
+    75%{width:70%;}
+    88%{width:92%;}
+    100%{width:100%;}
+  }
+
+  /* ---------- cursor-reactive water: real distortion of the wallpaper itself ---------- */
+  .wallpaper-distort{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    filter:url(#waterDistort); opacity:0; pointer-events:none;
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+    -webkit-mask-size:760px 760px; mask-size:760px 760px;
+    -webkit-mask-image:radial-gradient(circle, #000 0%, rgba(0,0,0,0.6) 45%, transparent 72%);
+    mask-image:radial-gradient(circle, #000 0%, rgba(0,0,0,0.6) 45%, transparent 72%);
+    -webkit-mask-position:-9999px -9999px; mask-position:-9999px -9999px;
+    transition:opacity 0.35s ease;}
+  .wallpaper-distort.active{opacity:1;}
+
+  /* ---------- menu bar ---------- */
+  .menubar{position:absolute; top:0; left:0; right:0; height:34px; background:rgba(10,12,20,0.42);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    display:flex; align-items:center; justify-content:space-between; padding:0 16px;
+    color:#f7f5f0; font-size:13px; font-weight:500; z-index:5;}
+  .menubar .left{display:flex;align-items:center;gap:18px;}
+  .menubar .left .apple{font-size:15px;}
+  .menubar .left span.appname{font-weight:700;}
+  .menubar .right{display:flex;align-items:center;gap:13px;}
+  .menubar .right .mic{opacity:0.9;}
+  .menubar .right .wifi{display:flex;align-items:flex-end;gap:1.5px;height:11px;}
+  .menubar .right .wifi i{width:2.5px;background:#f7f5f0;border-radius:1px;display:block;}
+  .menubar .right .wifi i:nth-child(1){height:3px;}
+  .menubar .right .wifi i:nth-child(2){height:6px;}
+  .menubar .right .wifi i:nth-child(3){height:9px;}
+  .menubar .right .wifi i:nth-child(4){height:11px;}
+  .menubar .right .batt{display:flex;align-items:center;gap:3px;font-size:12px;}
+  .menubar .right .batt .shell{width:21px;height:11px;border:1.4px solid #f7f5f0;border-radius:2.5px;position:relative;}
+  .menubar .right .batt .shell::after{content:'';position:absolute;right:-3.5px;top:2.7px;width:1.6px;height:5px;background:#f7f5f0;border-radius:0 1px 1px 0;}
+  .menubar .right .batt .fill{position:absolute;inset:1.5px;width:65%;background:#f7f5f0;border-radius:1px;}
+  .menubar .right span.sym{opacity:0.92;}
+
+  /* ---------- widgets (real asset images) ---------- */
+  .widget-photo-frame{position:absolute; top:72px; left:32px; width:clamp(112px, 8.6vw, 130px); height:clamp(105px, 8.1vw, 122px); border-radius:14px; overflow:hidden;
+    box-shadow:0 14px 30px rgba(0,0,0,0.28); z-index:2;}
+  .widget-photo-frame img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity 1.1s ease;}
+  .widget-clock{position:absolute; top:66px; left:244px; width:181px; height:170px; object-fit:cover; border-radius:18px;
+    box-shadow:0 14px 30px rgba(0,0,0,0.28); z-index:2;}
+  .widget-caption{position:absolute; font-size:12px; color:#fdfbf6; font-weight:500; text-align:center;
+    text-shadow:0 1px 4px rgba(0,0,0,0.6); z-index:2;}
+  .widget-clock-wrap{position:absolute; top:72px; left:calc(32px + clamp(112px, 8.6vw, 130px) + 14px); width:clamp(112px, 8.6vw, 130px); height:clamp(105px, 8.1vw, 122px); border-radius:14px; overflow:hidden;
+    box-shadow:0 14px 30px rgba(0,0,0,0.28); z-index:2;}
+  .widget-clock-wrap img{width:100%; height:100%; object-fit:cover; display:block;}
+  .clock-hand{position:absolute; left:50%; top:50%; transform-origin:50% 100%; background:#211e1a; border-radius:4px;}
+  .clock-hand.hour{width:5px; height:24%; margin-left:-2.5px; margin-top:-24%;}
+  .clock-hand.minute{width:3.5px; height:34%; margin-left:-1.75px; margin-top:-34%;}
+  .clock-hand.second{width:2px; height:38%; background:var(--rust); margin-left:-1px; margin-top:-38%;}
+  .clock-center-dot{position:absolute; left:50%; top:50%; width:9px; height:9px; margin-left:-4.5px; margin-top:-4.5px;
+    background:var(--rust); border-radius:50%; z-index:5;}
+  .widget-weather{position:absolute; top:calc(72px + clamp(105px, 8.1vw, 122px) + 38px); left:32px; width:clamp(255px, 19.5vw, 300px); height:clamp(120px, 9.2vw, 141px); object-fit:contain; border-radius:18px; box-shadow:0 14px 30px rgba(0,0,0,0.28); cursor:default; z-index:2;}
+
+  /* ---------- folders — using real cropped icon images ---------- */
+  .folders{position:absolute; inset:0; z-index:3; pointer-events:none;}
+  .folder{pointer-events:auto;}
+  .folder{position:absolute; width:clamp(68px, 5vw, 78px); display:flex; flex-direction:column; align-items:center; gap:5px; cursor:grab; -webkit-user-select:none; user-select:none; transition:transform 0.15s ease;}
+  .folder:active{cursor:grabbing;}
+  .folder:hover{transform:translateY(-3px);}
+  .folder img{width:clamp(47px, 3.5vw, 54px); height:auto; filter:drop-shadow(0 8px 14px rgba(0,0,0,0.35));}
+  .folder-label{font-size:clamp(10.5px, 0.78vw, 11.5px); color:#fdfbf6; font-weight:500; text-align:center; text-shadow:0 1px 4px rgba(0,0,0,0.6); line-height:1.25; padding:1px 8px; border-radius:5px;}
+  .folder.selected .folder-label{background:rgba(58,90,140,0.85);}
+
+  /* ---------- dock — using real cropped icon images ---------- */
+  .dock{position:absolute; bottom:clamp(20px, 2.2vh, 30px); left:50%; transform:translateX(-50%); display:flex; align-items:flex-end; gap:clamp(12px, 1.1vw, 16px);
+    padding:clamp(9px, 0.85vw, 12px) clamp(15px, 1.35vw, 19px); border-radius:19px; background:rgba(255,255,255,0.14);
+    backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); border:1px solid rgba(255,255,255,0.28); z-index:6;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);}
+  .dock-sep{width:1.5px; height:36px; background:rgba(255,255,255,0.35); align-self:center; margin:0 2px;}
+  .dock-item{position:relative; display:flex; flex-direction:column; align-items:center; cursor:pointer;}
+  .dock-item img{width:clamp(38px, 3vw, 45px); height:clamp(38px, 3vw, 45px); border-radius:11px; box-shadow:0 5px 12px rgba(0,0,0,0.4);
+    transition:transform 0.14s cubic-bezier(.2,.9,.3,1.3); transform-origin:bottom center;}
+  .dock-item:hover img{transform:translateY(-12px) scale(1.15);}
+  .dock-dot{width:4px;height:4px;border-radius:50%;background:#fff;margin-top:5px;opacity:0; transition:opacity 0.15s ease;}
+  .dock-dot.on{opacity:0.85;}
+  .dock-tip{position:absolute; bottom:82px; left:50%; transform:translateX(-50%); background:rgba(20,22,24,0.92); color:#fff;
+    font-size:11.5px; padding:4px 9px; border-radius:6px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.12s ease; z-index:40;}
+  .dock-item:hover .dock-tip{opacity:1; z-index:40;}
+  .dock-item{z-index:1;}
+  .copyright-notice{position:absolute; bottom:10px; left:14px; font-family:var(--f-ui); font-size:11px; color:rgba(255,255,255,0.65);
+    text-shadow:0 1px 3px rgba(0,0,0,0.5); z-index:2; pointer-events:none;}
+  .call-badge{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.92); background:#1d1f24; color:#fff;
+    font-family:var(--f-ui); font-size:22px; font-weight:700; padding:22px 34px; border-radius:16px; white-space:nowrap; text-align:center;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease, transform 0.2s ease; z-index:95000; box-shadow:0 20px 50px rgba(0,0,0,0.45);}
+  .call-badge.show{opacity:1; transform:translate(-50%,-50%) scale(1); pointer-events:auto;}
+  .call-badge-more{margin-top:12px; font-size:13px; font-weight:500; color:#b7bcc4; cursor:pointer; text-align:center;}
+  .call-badge-more:hover{color:#fff;}
+  .dock-item:hover{z-index:41;}
+
+  /* ---------- overlay ---------- */
+  .overlay{position:absolute; inset:0; background:rgba(10,12,13,0.0); pointer-events:none; z-index:10; transition:background 0.2s ease;}
+  .overlay.show{background:rgba(10,12,13,0.4); pointer-events:auto;}
+
+  /* ---------- windows (generic chrome) ---------- */
+  .window{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.86); opacity:0; pointer-events:none;
+    transition:transform 0.22s cubic-bezier(.2,.8,.3,1.05), opacity 0.18s ease; z-index:20; border-radius:11px; overflow:hidden;
+    box-shadow:0 30px 70px rgba(0,0,0,0.45);}
+  .window.open{transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto;}
+  .win-bar{height:34px; display:flex; align-items:center; padding:0 14px; gap:8px; -webkit-user-select:none; user-select:none; cursor:grab;}
+  .win-bar:active{cursor:grabbing;}
+  .dot{width:11px;height:11px;border-radius:50%;}
+  .dot.red{background:#ec6a5e; cursor:pointer;}
+  .dot.yellow{background:#f4bf4f;}
+  .dot.green{background:#61c454;}
+  .win-title{flex:1; text-align:center; font-size:12.5px; font-weight:600; margin-right:52px;}
+
+  .doc-window{width:700px; max-height:640px;}
+  .doc-window .win-bar{background:#e2dac8; color:#4a4335; border-bottom:1px solid #d3c9b2;}
+  #win-archive .win-bar{background:#aed4ea; color:#1c3a4d; border-bottom:1px solid #8fbdd6;}
+  #win-worldbuilding .win-bar{background:#c9bfe8; color:#2e2650; border-bottom:1px solid #ab9dd6;}
+  .doc-body{background:repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--paper-line) 28px);
+    background-color:var(--paper); height:606px; overflow-y:auto; padding:34px 44px 50px; font-family:var(--f-mono); color:var(--ink); position:relative;}
+  .doc-body::-webkit-scrollbar{width:9px;}
+  .doc-body::-webkit-scrollbar-thumb{background:#cbbfa2;border-radius:6px;}
+  .tape{position:absolute; width:70px; height:26px; background:rgba(255,255,255,0.55); border:1px solid rgba(0,0,0,0.05); box-shadow:0 3px 6px rgba(0,0,0,0.12);}
+
+  .flyer-head{display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:18px;}
+  .flyer-title{font-family:var(--f-display); font-size:32px; line-height:1.08; letter-spacing:-0.01em; max-width:400px;}
+  .flyer-title .zero{display:inline-block; transform:scaleX(0.9);}
+  .flyer-loc{font-family:var(--f-ui); font-size:11px; color:#6f6552; margin-top:10px; line-height:1.5;}
+  .info-block{width:150px; background:var(--denim); color:#fff; padding:20px 14px 14px; position:relative; flex-shrink:0; margin-top:4px;}
+  .info-block .bigline{font-family:var(--f-display); font-size:20px; line-height:1.15;}
+  .binder-clip{position:absolute; top:-16px; right:22px; width:26px; height:34px;}
+  .binder-clip::before{content:''; position:absolute; inset:0; background:var(--ink); border-radius:3px;}
+  .binder-clip::after{content:''; position:absolute; top:6px; left:5px; right:5px; height:16px; border:2.5px solid #d8d3c6; border-radius:2px; background:transparent;}
+  .curator-line{font-family:var(--f-ui); font-size:11px; color:#6f6552; text-transform:uppercase; letter-spacing:0.06em; margin:14px 0 2px;}
+  .curator-name{font-family:var(--f-display); font-size:16px; margin-bottom:14px;}
+  .divider-dash{border:none; border-top:2px dashed var(--ink); margin:16px 0 20px; opacity:0.75;}
+  .arrow-list{margin-bottom:22px;}
+  .arrow-item{margin-bottom:14px;}
+  .arrow-item .name{font-family:var(--f-ui); font-weight:700; font-size:15px;}
+  .arrow-item .desc{font-family:var(--f-mono); font-style:italic; color:var(--denim); font-size:13px; margin-top:2px;}
+  .arrow-item .desc::before{content:'→ '; font-style:normal;}
+  .arrow-cols{display:grid; grid-template-columns:1fr 1fr; gap:6px 20px;}
+  .index-card{background:#efe9da; border:1px solid #cfc6ac; padding:16px 18px; max-width:340px; position:relative; transform:rotate(-1deg); box-shadow:0 8px 18px rgba(0,0,0,0.14); margin:8px 0 26px;}
+  .index-card::before{content:''; position:absolute; top:-10px; left:-14px; width:52px; height:20px; background:rgba(255,255,255,0.6); border:1px solid rgba(0,0,0,0.05); transform:rotate(-8deg);}
+  .index-card .line{font-family:var(--f-mono); font-size:12px; line-height:1.7;}
+  .index-card .line b{color:var(--denim);}
+  .closer-word{font-family:var(--f-display); font-size:54px; line-height:0.9; margin:10px 0 4px; letter-spacing:-0.01em;}
+  .closer-sub{font-family:var(--f-hand); font-size:20px; color:#6f6552; margin-bottom:22px;}
+  .footer-caps{display:flex; align-items:center; gap:10px; font-family:var(--f-ui); font-size:11px; letter-spacing:0.16em; font-weight:700; text-transform:uppercase; color:var(--ink); padding-top:16px; border-top:1px solid #d3c9b2; flex-wrap:wrap;}
+  .footer-caps .sep{width:5px; height:5px; border-radius:50%; background:var(--ink); opacity:0.4;}
+  .about-polaroid{width:170px; float:right; margin:0 4px 16px 24px; background:#fff; padding:10px 10px 30px;
+    box-shadow:0 10px 22px rgba(0,0,0,0.22); transform:rotate(3deg);}
+  .about-polaroid img{width:100%; display:block; object-fit:cover;}
+  .about-polaroid .cap{font-family:var(--f-hand); font-size:18px; text-align:center; margin-top:8px; color:#3a3a3a;}
+
+  /* ---------- work-log style About Me (pixel-close recreation) ---------- */
+  #win-about .doc-body{background:#241d16; background-image:none;}
+  #win-worldbuilding .doc-body{background:#8a81ab; background-image:none; padding:0; height:686px;}
+  #win-worldbuilding, #win-vwb-project1, #win-vwb-project2{width:1150px; max-height:800px;}
+  #win-archive{width:1150px; max-height:840px;}
+  #win-archive .doc-body{height:800px;}
+  #win-timeline{width:640px;}
+
+  /* ---------- Hobbies: flip-card stack ---------- */
+  #win-hobbies .win-bar{background:#ed727e; color:#3a1418; border-bottom:1px solid #d65f6c;}
+  #win-hobbies .doc-body{background:#ed727e; background-image:none;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .hobby-stage{position:relative; width:560px; height:340px; perspective:1400px;}
+  .hobby-card{position:absolute; inset:0; background:#f7f4ec; border-radius:10px; padding:24px 26px;
+    box-shadow:0 24px 50px rgba(0,0,0,0.32); cursor:pointer; transition:transform 0.6s cubic-bezier(.4,.1,.2,1);
+    transform-style:preserve-3d; backface-visibility:hidden; transform-origin:center top;
+    display:flex; justify-content:space-between; gap:18px;}
+  .hobby-text-col{display:flex; flex-direction:column; justify-content:center; flex:1; min-width:0;}
+  .hobby-name-label, .hobby-job-label{font-family:var(--f-ui); font-size:12px; font-weight:800; letter-spacing:0.04em; color:#211e1a;}
+  .hobby-title{font-family:var(--f-hand); font-size:38px; color:#211e1a; line-height:1.12; margin:0 0 18px;}
+  .hobby-job-value{font-family:var(--f-hand); font-size:26px; color:#211e1a; line-height:1.28; margin:3px 0 0;}
+  .hobby-caption{font-family:var(--f-ui); font-weight:800; font-size:15px; letter-spacing:0.03em; color:#211e1a; margin-top:18px;}
+  .hobby-photo-wrap{position:relative; width:148px; height:184px; flex-shrink:0; align-self:center;}
+  .hobby-photo-scribble{position:absolute; inset:-8px; border:3px dashed #7fabc4; border-radius:12px; transform:rotate(-2deg); opacity:0.8;}
+  .hobby-photo{position:relative; width:100%; height:100%; background:#2a2a2a; border-radius:3px; overflow:hidden;
+    box-shadow:0 8px 18px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; color:#ddd; font-family:var(--f-hand); font-size:13px; text-align:center;}
+  .hobby-photo img{width:100%; height:100%; object-fit:cover;}
+  .hobby-clip{position:absolute; top:-18px; left:50%; margin-left:-13px; font-size:24px; transform:rotate(-12deg); z-index:5;}
+  .hobby-hint{position:absolute; bottom:-28px; left:0; right:0; text-align:center; font-family:var(--f-ui); font-size:11px; color:#fff; opacity:0.85; z-index:20;}
+  #win-vwb-project1 .doc-body, #win-vwb-project2 .doc-body{height:726px;}
+
+  /* ---------- Visual World-Building: purple binder mockup ---------- */
+  .cm-leather{position:relative; padding:18px; min-height:606px;
+    background:linear-gradient(155deg, #a89fc9, #7a70a0); border-radius:8px;}
+  .cm-tilerow{display:grid; grid-template-columns:repeat(6, 1fr); gap:5px;}
+  .cm-tile{aspect-ratio:0.72; background-size:cover; background-position:center;}
+  .cm-band{background:#eae7ea; padding:20px 22px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;}
+  .cm-band-left{font-family:var(--f-ui); font-size:11px; font-weight:700; letter-spacing:0.1em; color:#211e1a; line-height:1.7;}
+  .cm-band-left .rule{width:34px; height:2px; background:#211e1a; margin:8px 0;}
+  .cm-band-left .cats{font-size:9px; letter-spacing:0.06em; color:#6a6560; font-weight:600; margin-top:6px;}
+  .vwb-hotspot-badge{position:absolute; transform:translate(-50%,-50%); background:rgba(20,20,20,0.88); color:#fff;
+    font-family:var(--f-ui); font-weight:700; font-size:14px; padding:11px 20px; border-radius:26px;
+    display:flex; align-items:center; gap:6px; box-shadow:0 6px 16px rgba(0,0,0,0.4); pointer-events:auto; cursor:pointer;
+    border:2px solid rgba(255,255,255,0.6); white-space:nowrap; z-index:3;}
+  .vwb-hotspot-badge::before{content:'👇'; font-size:16px;}
+  .vwb-hotspot{position:absolute; cursor:pointer; z-index:2;}
+  .vwb-hotspot.btn{display:flex; align-items:center; justify-content:center; gap:6px; background:transparent; color:transparent;
+    font-family:var(--f-ui); font-weight:700; font-size:12px; letter-spacing:0.02em; border-radius:6px;
+    transition:background 0.15s ease, color 0.15s ease; text-decoration:none;}
+  .vwb-hotspot.btn:hover{background:#000; color:#fff;}
+  .vwb-caption-row{display:flex; justify-content:space-between; padding:18px 90px 24px; background:#000;}
+  .vwb-caption-row .vwb-hotspot-badge{position:static; transform:none; cursor:pointer;}
+  .win-back{width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,0.08); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:13px; margin-right:2px; font-weight:700;}
+  .win-back:hover{background:rgba(0,0,0,0.16);}
+  .cm-band-right{text-align:right;}
+  .cm-headline{font-family:'Playfair Display', serif; font-style:italic; font-size:36px; color:#211e1a;}
+  .cm-tagline{font-family:var(--f-ui); font-size:10px; font-weight:700; letter-spacing:0.14em; color:#4a453f; margin-top:4px;}
+  .cm-rings{display:flex; justify-content:space-evenly; margin:-2px 20px; position:relative; z-index:3;}
+  .cm-ring{width:24px; height:24px; border-radius:50%; margin-top:-12px;
+    background:radial-gradient(circle at 35% 30%, #fdfdfd, #9a9a9a 55%, #5c5c5c 100%);
+    box-shadow:0 4px 8px rgba(0,0,0,0.5); position:relative;}
+  .cm-ring::after{content:''; position:absolute; inset:6px; border-radius:50%; background:#8a81ab;}
+  .cm-bottom{position:relative; background:#15161c; padding:22px 20px 26px 36px; display:flex; gap:16px; align-items:stretch;}
+  .cm-spine{writing-mode:vertical-rl; font-family:'Playfair Display', serif; font-style:italic; color:#f2efe8; font-size:15px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .cm-photo{background:#fff; padding:8px 8px 24px; box-shadow:0 14px 30px rgba(0,0,0,0.5); flex:1; position:relative;}
+  .cm-photo img{width:100%; height:220px; object-fit:cover; display:block;}
+  .cm-photo .cap{position:absolute; bottom:6px; left:0; right:0; text-align:center; font-family:var(--f-ui); font-size:10px; color:#3a3226; font-weight:600;}
+  .cm-center-text{flex-shrink:0; width:130px; color:#f2efe8; font-family:var(--f-ui); font-size:11px; font-weight:700; letter-spacing:0.04em; line-height:1.6; padding-top:10px;}
+  .cm-center-text .big{font-family:'Playfair Display', serif; font-style:italic; font-size:16px; letter-spacing:0; margin-bottom:14px; line-height:1.3;}
+  .wl-folder{position:relative; background:linear-gradient(165deg, #ff9a72, #ff6b45); border-radius:6px 8px 10px 10px; padding:36px 30px 32px; margin:6px 4px 0; box-shadow:0 24px 60px rgba(0,0,0,0.55);}
+  .wl-stack-behind{position:absolute; top:16px; left:20px; right:40px; height:210px; background:#ffe4d6; border-radius:4px; transform:rotate(-2deg); box-shadow:0 8px 18px rgba(0,0,0,0.22); z-index:1;}
+  .wl-stack-behind.two{background:#fff0e8; transform:rotate(1.5deg); top:22px; left:30px; right:24px; z-index:0;}
+  .wl-peek-photo{position:absolute; top:2px; right:36px; width:120px; height:190px; overflow:hidden; border-radius:2px;
+    transform:rotate(3deg); box-shadow:0 8px 18px rgba(0,0,0,0.25); z-index:1;}
+  .wl-peek-photo img{width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(1.05); opacity:0.9;}
+  .wl-tab{position:absolute; top:-10px; left:30px; width:76px; padding:5px 6px; background:#fdf3e8;
+    font-family:var(--f-mono); font-size:9px; text-align:center; transform:rotate(-4deg);
+    box-shadow:0 3px 6px rgba(0,0,0,0.25); color:#4a4335; z-index:6;}
+  .wl-side-tab{position:absolute; top:56px; right:-15px; writing-mode:vertical-rl; background:#fdf3e8;
+    padding:18px 8px; font-family:var(--f-ui); font-weight:700; font-size:11px; letter-spacing:0.14em;
+    color:#3a3226; box-shadow:-4px 4px 10px rgba(0,0,0,0.3); border-radius:0 4px 4px 0; z-index:6;}
+  .wl-side-tab-sub{position:absolute; top:196px; right:-6px; background:#fdf3e8; padding:5px 10px;
+    font-family:var(--f-mono); font-size:8.5px; color:#4a3f30; transform:rotate(-8deg);
+    box-shadow:0 3px 6px rgba(0,0,0,0.25); z-index:6;}
+  .wl-card{background:#f8f5ee; padding:28px 30px 40px; box-shadow:0 16px 34px rgba(0,0,0,0.3); position:relative; z-index:2; min-height:640px;}
+  .wl-card::before{content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      linear-gradient(115deg, transparent 30%, rgba(0,0,0,0.05) 31%, transparent 33%),
+      linear-gradient(25deg, transparent 55%, rgba(255,255,255,0.6) 56%, transparent 58%),
+      linear-gradient(160deg, transparent 68%, rgba(0,0,0,0.045) 69%, transparent 71%);
+    mix-blend-mode:multiply; opacity:0.16;}
+  .wl-headline{font-family:var(--f-display); font-size:30px; letter-spacing:-0.01em; margin-bottom:18px; color:var(--ink);}
+  .wl-row{display:flex; gap:14px; align-items:baseline; margin-bottom:10px; border-bottom:1px solid #ddd4bf; padding-bottom:7px;}
+  .wl-row .wl-label{font-family:var(--f-ui); font-size:10.5px; font-weight:700; letter-spacing:0.1em; color:#8a7f68; width:76px; flex-shrink:0; text-transform:uppercase;}
+  .wl-row .wl-value{font-family:var(--f-hand); font-size:19px; color:var(--ink);}
+  .wl-task-label{font-family:var(--f-ui); font-size:10.5px; font-weight:700; letter-spacing:0.1em; color:#8a7f68; text-transform:uppercase; margin:18px 0 8px;}
+  .wl-task-hand{font-family:var(--f-hand); font-size:20px; line-height:1.35; color:var(--ink); margin-bottom:12px;}
+  .wl-task-typed{font-family:var(--f-ui); font-size:11.5px; line-height:1.7; color:#6f6552;}
+  .wl-notch{position:absolute; bottom:-2px; left:50%; transform:translate(-50%, 46%); width:58px; height:58px;
+    background:#c9b8a0; border-radius:50%; z-index:3;}
+  .wl-pocket-wrap{position:relative; margin-top:0; height:186px; z-index:1;}
+  .wl-pocket{position:absolute; left:-8px; right:-8px; bottom:0; width:auto; height:150px; border-radius:4px;
+    background:linear-gradient(160deg,#a9c3cf,#8fb0c0); box-shadow:0 12px 26px rgba(0,0,0,0.3);}
+  .wl-badge{position:absolute; left:26px; bottom:26px; background:var(--mustard); color:#2c2408; font-family:var(--f-hand);
+    font-weight:700; font-size:16px; padding:9px 20px; border-radius:3px; transform:rotate(-4deg);
+    box-shadow:0 5px 12px rgba(0,0,0,0.3); text-align:center; line-height:1.2;}
+  .wl-badge::before, .wl-badge::after{content:''; position:absolute; top:50%; width:11px; height:11px; border-radius:50%;
+    background:#9ec0cf; transform:translateY(-50%);}
+  .wl-badge::before{left:-5.5px;}
+  .wl-badge::after{right:-5.5px;}
+  .wl-badge .sub{font-family:var(--f-ui); font-size:8px; letter-spacing:0.08em; text-transform:uppercase; display:block; margin-top:2px; font-weight:700;}
+  .wl-sticker{position:absolute; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:30px; box-shadow:0 6px 14px rgba(0,0,0,0.32); border:3px solid rgba(255,255,255,0.7); z-index:2;}
+  .wl-sticker-img{position:absolute; z-index:2; filter:drop-shadow(0 6px 10px rgba(0,0,0,0.4));}
+  .wl-id-photo{position:absolute; top:-18px; right:24px; width:114px; background:#fff; padding:6px 6px 10px;
+    box-shadow:0 14px 26px rgba(0,0,0,0.4); transform:rotate(5deg); z-index:4;}
+  .wl-id-photo img{width:100%; display:block;}
+  .wl-paperclip{position:absolute; top:-16px; left:50%; margin-left:-24px; width:15px; height:34px; border:3px solid #d3d7db;
+    border-radius:8px; transform:rotate(-10deg); box-shadow:1px 2px 3px rgba(0,0,0,0.2);}
+  .wl-paperclip::after{content:''; position:absolute; top:5px; left:-4px; width:9px; height:20px; border:3px solid #d3d7db; border-radius:6px;}
+  .footer-caps a{color:var(--denim);}
+
+  .collage-title{margin:6px 0 26px; line-height:0.95;}
+  .collage-title span{display:inline-block; font-family:var(--f-display); font-size:48px; padding:2px 8px; margin:0 2px 6px 0; border-radius:2px;}
+  .collage-title .c1{background:var(--rust); color:#fff; transform:rotate(-3deg);}
+  .collage-title .c2{background:var(--denim); color:#fff; transform:rotate(2deg);}
+  .collage-title .c3{background:var(--mustard); color:#2c2408; transform:rotate(-1.5deg);}
+  .collage-title .c4{background:var(--ink); color:var(--paper); transform:rotate(2.5deg);}
+  .collage-title .c5{background:#fff; color:var(--ink); border:2px solid var(--ink); transform:rotate(-2deg);}
+
+  .doc-block{margin-bottom:24px;}
+  .doc-block h3{font-family:var(--f-ui); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#8a7f68; margin:0 0 8px; font-weight:700;}
+  .doc-block p, .doc-block li{font-size:13.5px; line-height:1.75; margin:0 0 8px;}
+  .doc-block ul{margin:0; padding-left:18px;}
+  .sticky-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-top:6px;}
+  .sticky{padding:18px 18px 22px; min-height:120px; font-family:var(--f-hand); font-size:20px; line-height:1.3; box-shadow:0 8px 16px rgba(0,0,0,0.16);}
+  .sticky h4{font-family:var(--f-ui); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 8px; opacity:0.65;}
+  .sticky.s1{background:#f2c94c; transform:rotate(-2deg);}
+  .sticky.s2{background:#a7d0c9; transform:rotate(1.5deg);}
+  .sticky.s3{background:#f0a3a3; transform:rotate(-1deg);}
+  .sticky.s4{background:#c9b8f0; transform:rotate(2deg);}
+  .timeline-item{border-left:2px solid var(--ink); padding-left:18px; margin-bottom:22px; position:relative;}
+  .timeline-item::before{content:''; position:absolute; left:-6px; top:2px; width:10px; height:10px; border-radius:50%; background:var(--rust);}
+  .timeline-item .when{font-family:var(--f-ui); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:#8a7f68; font-weight:700;}
+  .timeline-item .what{font-size:15px; font-weight:700; margin:3px 0 4px; font-family:var(--f-ui);}
+  .timeline-item .desc{font-size:13.5px; line-height:1.65;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{font-family:var(--f-ui); font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:20px; border:1.5px solid var(--ink); background:transparent;}
+  .world-stack{display:flex; flex-direction:column; gap:24px; margin:14px 0 26px;}
+  .world-project{background:#fff; border:1px solid #d9d2c0; box-shadow:0 8px 18px rgba(0,0,0,0.14); position:relative;}
+  .world-project img{width:100%; display:block;}
+  .world-project .wp-info{padding:14px 18px 18px;}
+  .world-project .wp-title{font-family:var(--f-ui); font-weight:700; font-size:15px; margin-bottom:5px; color:var(--ink);}
+  .world-project .wp-desc{font-family:var(--f-mono); font-size:12.5px; line-height:1.65; color:#4a4335;}
+
+  .gallery-window{width:920px; max-height:660px; background:#17191c;}
+  .gallery-window .win-bar{background:#111315; color:#dcdad6; border-bottom:1px solid #26292d;}
+  .gal-toolbar{display:flex; align-items:center; justify-content:space-between; padding:12px 24px; border-bottom:1px solid #26292d; background:#141619;}
+  .gal-toolbar .app-name{color:#f2efe8; font-weight:700; font-size:14px; font-family:var(--f-ui);}
+  .gal-toolbar .app-sub{color:#f2efe8; font-size:12px; font-family:var(--f-ui); margin-top:2px;}
+  .gal-body{height:560px; overflow-y:auto; padding:24px; background:#17191c;}
+  .gal-body::-webkit-scrollbar{width:9px;}
+  .gal-body::-webkit-scrollbar-thumb{background:#33373c;border-radius:6px;}
+  .gal-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;}
+  .gal-card{background:#1e2124; border-radius:9px; overflow:hidden; border:1px solid #292d31; transition:transform 0.15s ease, border-color 0.15s ease;}
+  .gal-card:hover{transform:translateY(-4px); border-color:#43484e;}
+  .gal-thumb{height:130px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.85); font-family:var(--f-display); font-size:13px; text-align:center; padding:10px;}
+  .gal-info{padding:12px 14px 14px;}
+  .gal-info .t{color:#f2efe8; font-size:13.5px; font-weight:600; font-family:var(--f-ui);}
+  .gal-info .tag{color:#f2efe8; font-size:11.5px; font-family:var(--f-ui); margin-top:3px;}
+  .gal-note{margin-top:18px; padding:14px 16px; border:1px dashed #3a3f45; border-radius:8px; color:#f2efe8; font-size:12.5px; font-family:var(--f-ui); line-height:1.6;}
+
+  .gal-card.linked{position:relative; display:block; text-decoration:none; cursor:pointer;}
+  .gal-card .visit-chip{position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.55); color:#fff; font-size:10.5px;
+    font-family:var(--f-ui); font-weight:700; padding:3px 8px; border-radius:20px; letter-spacing:0.02em;}
+  .gal-thumb img.thumb-logo{width:100%; height:100%; object-fit:cover;}
+  .empty-state{height:560px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#f2efe8; font-family:var(--f-ui); text-align:center; gap:10px;}
+  .empty-state .big{font-family:var(--f-display); color:#f2efe8; font-size:20px;}
+
+  /* ---------- After Effects window: themed to its icon's indigo ---------- */
+  #win-ae{background:#0c0c4a;}
+  #win-ae .win-bar{background:#08083a; color:#dcdaf5; border-bottom-color:#1c1c66;}
+  #win-ae .gal-toolbar{background:#0a0a40; border-bottom-color:#1c1c66;}
+  #win-ae .gal-body{background:#0c0c4a;}
+  #win-ae .gal-card{background:#16164f; border-color:#26266e;}
+  #win-ae .gal-card:hover{border-color:#3d3d94;}
+  #win-ae .gal-note{border-color:#2b2b74;}
+
+  /* ---------- Illustrator window: themed to its icon's deep maroon ---------- */
+  #win-illustrator{background:#2a0f0f;}
+  #win-illustrator .win-bar{background:#1f0b0b; color:#f2ddd8; border-bottom-color:#4a1f1f;}
+  #win-illustrator .gal-toolbar{background:#210c0c; border-bottom-color:#4a1f1f;}
+  #win-illustrator .gal-body{background:#2a0f0f;}
+  #win-illustrator .gal-card{background:#391616; border-color:#4a1f1f;}
+  #win-illustrator .gal-card:hover{border-color:#6b2b2b;}
+  #win-illustrator .gal-note{border-color:#4a1f1f;}
+
+  /* ---------- Figma window: themed to its icon's near-black ---------- */
+  #win-figma{background:#131313;}
+  #win-figma .win-bar{background:#0d0d0d; color:#e8e8e8; border-bottom-color:#2c2c2c;}
+  #win-figma .gal-toolbar{background:#0f0f0f; border-bottom-color:#2c2c2c;}
+  #win-figma .gal-body{background:#131313;}
+  #win-figma #figma-body{height:calc(100% - 118px); min-height:0; overflow-y:auto; padding-bottom:70px; box-sizing:border-box; -webkit-overflow-scrolling:touch;}
+  #win-figma #figma-bts-body{padding-bottom:36px;}
+  /* Behind the Scenes gets its own dedicated vertical scroll area */
+  #win-figma #figma-body.bts-active{overflow:hidden; padding-bottom:0;}
+  #win-figma #figma-body.bts-active [data-figma-panel="bts"]{height:100%; min-height:0;}
+  #win-figma #figma-body.bts-active #figma-bts-body{height:100%; overflow-y:auto; box-sizing:border-box; padding-bottom:110px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;}
+  #win-figma #figma-body.bts-active #figma-bts-body::-webkit-scrollbar{width:9px;}
+  #win-figma #figma-body.bts-active #figma-bts-body::-webkit-scrollbar-thumb{background:#33373c;border-radius:6px;}
+  /* V6: keep the Figma window fixed and make ONLY the BTS content pane scroll */
+  #win-figma{height:min(660px,82vh); overflow:hidden;}
+  #win-figma #figma-body{height:calc(100% - 151px); min-height:0; overflow:hidden; padding:0;}
+  #win-figma #figma-body.bts-active [data-figma-panel="bts"]{display:block; height:100%; min-height:0;}
+  #win-figma #figma-body.bts-active #figma-bts-body{height:100%; min-height:0; overflow-y:scroll; overflow-x:hidden; padding:24px 24px 140px; box-sizing:border-box; -webkit-overflow-scrolling:touch;}
+  #win-figma .gal-card{background:#1c1c1c; border-color:#2c2c2c;}
+  #win-figma .gal-card:hover{border-color:#3a3a3a;}
+  #win-figma .gal-note{border-color:#2c2c2c;}
+
+
+  /* ---------- Figma hub: Behind the Scenes / NDA / Personal ---------- */
+  #win-figma .figma-tabs{display:flex; gap:8px; flex-wrap:wrap; padding:12px 18px; background:#0f0f0f; border-bottom:1px solid #2c2c2c;}
+  #win-figma .figma-tab{appearance:none; border:1px solid #333; background:#191919; color:#bdbdbd; border-radius:999px; padding:8px 13px; font:700 12px var(--f-ui); cursor:pointer; transition:.18s ease;}
+  #win-figma .figma-tab:hover{background:#222; color:#fff;}
+  #win-figma .figma-tab.active{background:#f2efe8; color:#111; border-color:#f2efe8;}
+  #win-figma .figma-panel{display:none;}
+  #win-figma .figma-panel.active{display:block;}
+  #win-figma .figma-section-intro{padding:10px 0 18px; color:#eee; font-family:var(--f-ui); max-width:980px; box-sizing:border-box;}
+  #win-figma .figma-panel .gal-grid{padding-top:14px;}
+  #win-figma .figma-section-intro .kicker{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#888; font-weight:800;}
+  #win-figma .figma-section-intro h3{margin:8px 0 10px; font-size:24px; line-height:1.15;}
+  #win-figma .figma-section-intro p{margin:0; color:#aaa; font-size:13px; line-height:1.55; max-width:760px;}
+  #win-figma .bts-card{cursor:pointer;}
+  #win-figma .bts-card .gal-thumb{background:#161616;}
+  #win-figma .bts-card .gal-thumb img{object-fit:cover;}
+  #win-figma .bts-chip{position:absolute; top:10px; right:10px; background:rgba(0,0,0,.68); color:#fff; font:700 10.5px var(--f-ui); padding:4px 8px; border-radius:20px;}
+  #win-figma .figma-empty{min-height:350px; display:flex; align-items:center; justify-content:center; text-align:center; color:#888; font:600 13px var(--f-ui); padding:40px;}
+
+  .figma-project-window{width:min(920px,88vw); height:min(720px,82vh); background:#111; color:#eee;}
+  .figma-project-window .win-bar{background:#0d0d0d; color:#e8e8e8; border-bottom:1px solid #2c2c2c; position:relative;}
+  .figma-back-btn{position:absolute; left:78px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:5px; appearance:none; border:0; background:transparent; color:#cfcfcf; font:700 11px var(--f-ui); cursor:pointer; padding:5px 8px; border-radius:7px; z-index:3;}
+  .figma-back-btn:hover{background:#242424; color:#fff;}
+  .figma-back-btn .arrow{font-size:17px; line-height:1; transform:translateY(-1px);}
+  .figma-project-scroll{height:calc(100% - 38px); overflow-y:auto; overscroll-behavior:contain; background:#111; scroll-behavior:smooth;}
+  .figma-project-cover{min-height:calc(100% - 1px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:48px 28px; box-sizing:border-box;}
+  .figma-project-logo{width:min(280px,55%); aspect-ratio:1/1; border-radius:28px; overflow:hidden; background:#1c1c1c; box-shadow:0 22px 60px rgba(0,0,0,.38); cursor:pointer; transition:transform .18s ease, box-shadow .18s ease;}
+  .figma-project-logo:hover{transform:translateY(-3px); box-shadow:0 26px 68px rgba(0,0,0,.48);}
+  .figma-project-logo a{display:block;width:100%;height:100%;}
+  .figma-project-logo a:focus-visible{outline:2px solid #fff;outline-offset:-4px;}
+  .figma-project-logo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .figma-project-name{font:800 18px var(--f-ui); text-align:center;}
+  .figma-scroll-hint{font:600 11px var(--f-ui); color:#777; letter-spacing:.08em; text-transform:uppercase; animation:figmaHint 1.7s ease-in-out infinite;}
+  @keyframes figmaHint{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(5px);opacity:1}}
+  .figma-bts-reveal{padding:26px 26px 42px; border-top:1px solid #292929; background:#151515;}
+  .figma-bts-reveal .label{font:800 11px var(--f-ui); color:#8d8d8d; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px;}
+  .figma-bts-reveal img{display:block; width:100%; height:auto; border-radius:14px; background:#222; box-shadow:0 14px 38px rgba(0,0,0,.28);}
+
+  @media screen and (max-width:768px){
+    #win-figma .figma-tabs{padding:10px 12px; gap:6px; flex-wrap:nowrap; overflow-x:auto;}
+    #win-figma .figma-tab{white-space:nowrap; padding:7px 10px; font-size:10.5px;}
+    #win-figma .figma-section-intro{padding:8px 0 14px;}
+    #win-figma .figma-section-intro h3{font-size:21px; margin:7px 0 9px;}
+    #win-figma .figma-section-intro p{font-size:12px;}
+    #win-figma .figma-panel .gal-grid{padding-top:10px;}
+    .figma-back-btn{left:72px; font-size:0; padding:4px 7px;}
+    .figma-back-btn .arrow{font-size:20px;}
+    .figma-project-window{width:calc(100vw - 20px)!important; height:calc(100dvh - 70px)!important; max-height:none!important;}
+    .figma-project-cover{min-height:100%; padding:34px 18px;}
+    .figma-project-logo{width:min(220px,66vw); border-radius:22px;}
+    .figma-bts-reveal{padding:18px 12px 30px;}
+    .figma-bts-reveal img{border-radius:10px;}
+  }
+
+
+  /* ---------- Personal Figma Projects ---------- */
+  #win-figma #figma-body.personal-active{overflow-y:auto; padding:24px 24px 100px; box-sizing:border-box; -webkit-overflow-scrolling:touch;}
+  #win-figma #figma-body.personal-active [data-figma-panel="personal"]{display:block;}
+  .personal-project-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding-top:8px;}
+  .personal-project-card{border:1px solid #303030;border-radius:16px;overflow:hidden;background:#1b1b1b;cursor:pointer;transition:transform .18s ease,border-color .18s ease;}
+  .personal-project-card:hover{transform:translateY(-3px);border-color:#555;}
+  .personal-project-thumb{aspect-ratio:16/9;background:#000;overflow:hidden;}
+  .personal-project-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .personal-project-meta{padding:14px 16px 16px;}
+  .personal-project-meta .title{font:800 15px var(--f-ui);color:#f2f2f2;}
+  .personal-project-meta .sub{font:600 11px var(--f-ui);color:#8e8e8e;margin-top:4px;}
+  .personal-case-window{width:min(1040px,90vw);height:min(760px,86vh);background:#0d0d0d;color:#eee;overflow:hidden;}
+  .personal-case-window .win-bar{background:#0b0b0b;color:#eee;border-bottom:1px solid #292929;position:relative;}
+  .personal-case-scroll{height:calc(100% - 38px);overflow-y:auto;overflow-x:hidden;background:#0d0d0d;padding:22px;box-sizing:border-box;-webkit-overflow-scrolling:touch;}
+  .personal-case-images{display:flex;flex-direction:column;gap:18px;max-width:1200px;margin:0 auto;}
+  .personal-case-images img{display:block;width:100%;height:auto;border-radius:12px;background:#111;}
+  @media screen and (max-width:768px){.personal-project-grid{grid-template-columns:1fr;gap:12px}.personal-case-window{width:calc(100vw - 20px)!important;height:calc(100dvh - 70px)!important;max-height:none!important}.personal-case-scroll{padding:10px}.personal-case-images{gap:10px}.personal-case-images img{border-radius:8px}}
+
+  /* ---------- Premiere Pro window: themed to its icon's deep navy ---------- */
+  #win-premiere{background:#0a0a3a;}
+  #win-premiere .win-bar{background:#07072c; color:#d8daf2; border-bottom-color:#262666;}
+  #win-premiere .gal-toolbar{background:#08082f; border-bottom-color:#262666;}
+  #win-premiere .gal-body{background:#0a0a3a;}
+  #win-premiere .gal-card{background:#13134a; border-color:#22225e;}
+  #win-premiere .gal-card:hover{border-color:#33337a;}
+  #win-premiere .gal-note{border-color:#262666;}
+  .gal-play-badge{position:absolute; bottom:10px; right:10px; width:30px; height:30px; border-radius:50%;
+    background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center;}
+  .gal-play-badge::after{content:''; width:0; height:0; margin-left:2px;
+    border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:11px solid #fff;}
+
+  /* ---------- Photoshop window: themed to its icon's deep teal-blue ---------- */
+  #win-photoshop{background:#0b1b27;}
+  #win-photoshop .win-bar{background:#081620; color:#d8ecf5; border-bottom-color:#1e3a4d;}
+  #win-photoshop .gal-toolbar{background:#091822; border-bottom-color:#1e3a4d;}
+  #win-photoshop .gal-body{background:#0b1b27;}
+  #win-photoshop .gal-card{background:#12293a; border-color:#1e3a4d;}
+  #win-photoshop .gal-card:hover{border-color:#2d5268;}
+  #win-photoshop .gal-note{border-color:#1e3a4d;}
+  #win-photoshop .gal-thumb{height:260px; background:#081620;}
+  #win-photoshop .gal-thumb img.thumb-logo{object-fit:contain;}
+
+  /* ---------- YouTube window: themed to its icon's black + red ---------- */
+  #win-youtube{background:#141414;}
+  #win-youtube .win-bar{background:#0d0d0d; color:#f2efe8; border-bottom-color:#2c2c2c;}
+  #win-youtube .gal-toolbar{background:#0f0f0f; border-bottom-color:#2c2c2c;}
+
+  /* ---------- Blender window: themed to its icon's black + orange ---------- */
+  #win-blender{background:#171310;}
+  #win-blender .win-bar{background:#100d0b; color:#f2efe8; border-bottom-color:#3a2f22;}
+  #win-blender .gal-toolbar{background:#130f0c; border-bottom-color:#3a2f22;}
+  #win-blender .gal-body{background:#171310;}
+  #win-blender .gal-card{background:#201a15; border-color:#3a2f22;}
+  #win-blender .gal-card:hover{border-color:#e8792d;}
+  #win-blender .gal-note{border-color:#3a2f22;}
+  #win-blender .gal-grid{grid-template-columns:1fr; gap:14px;}
+  #win-blender .gal-card{display:flex; flex-direction:row; align-items:stretch;}
+  #win-blender .gal-thumb{width:240px; height:160px; flex-shrink:0;}
+  #win-blender .gal-info{display:flex; flex-direction:column; justify-content:center; padding:16px 22px;}
+  #win-blender .gal-info .t{font-size:15px;}
+  #win-blender .gal-info .tag{font-size:12.5px;}
+
+  /* ---------- scrollable multi-image project viewer ---------- */
+  .project-viewer{width:1120px; max-height:900px; background:#141414;}
+  .project-viewer .win-bar{background:#0d0d0d; color:#f2efe8; border-bottom-color:#2c2c2c;}
+  .pv-body{max-height:830px; overflow-y:auto; padding:26px 26px 34px; background:#141414; display:flex; flex-direction:column; gap:24px;}
+  .pv-shot{flex-shrink:0;}
+  .pv-body::-webkit-scrollbar{width:9px;}
+  .pv-body::-webkit-scrollbar-thumb{background:#333; border-radius:6px;}
+  .pv-shot{border-radius:10px; overflow:hidden; border:1px solid #2c2c2c; background:#1c1c1c;}
+  .pv-shot img, .pv-shot video{width:100%; display:block; background:#000;}
+  .pv-shot .pv-label{padding:9px 14px; color:#a8adb3; font-family:var(--f-ui); font-size:11.5px; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.06em; border-top:1px solid #2c2c2c; background:#191919;}
+  .pv-desc{color:#f2efe8; font-family:var(--f-ui); font-size:13.5px; line-height:1.7; padding:2px 2px 4px;}
+  .yt-body{height:560px; overflow-y:auto; padding:22px 24px; background:#141414;}
+  .yt-body::-webkit-scrollbar{width:9px;}
+  .yt-body::-webkit-scrollbar-thumb{background:#333; border-radius:6px;}
+  .yt-hero{position:relative; display:block; border-radius:12px; overflow:hidden; margin-bottom:26px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.5); cursor:pointer; text-decoration:none;}
+  .yt-hero .yt-hero-img{width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#1c1c1c;}
+  .yt-hero .play{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:64px; height:46px; background:rgba(224,48,48,0.94); border-radius:12px;
+    display:flex; align-items:center; justify-content:center; transition:transform 0.15s ease;}
+  .yt-hero:hover .play{transform:translate(-50%,-50%) scale(1.08);}
+  .yt-hero .play::after{content:''; width:0; height:0; margin-left:4px;
+    border-top:11px solid transparent; border-bottom:11px solid transparent; border-left:18px solid #fff;}
+  .yt-hero .yt-hero-title{position:absolute; bottom:0; left:0; right:0; padding:16px 20px 14px;
+    background:linear-gradient(transparent, rgba(0,0,0,0.88)); color:#fff; font-family:var(--f-ui); font-weight:700; font-size:15px;}
+  .yt-feed{display:flex; flex-direction:column; gap:18px;}
+  .yt-entry{background:#1c1c1c; border:1px solid #2c2c2c; border-radius:10px; overflow:hidden; transition:border-color 0.15s ease;}
+  .yt-entry:hover{border-color:#e03030;}
+  .yt-entry img{width:100%; display:block;}
+  .yt-entry .txt{padding:14px 16px; color:#f2efe8; font-family:var(--f-ui); font-size:13px; line-height:1.65;}
+
+  .gal-card.clickable{cursor:pointer;}
+
+  /* ---------- full-size image lightbox ---------- */
+  .lightbox{position:absolute; inset:0; background:rgba(8,9,10,0.92); z-index:100; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.22s ease;}
+  .lightbox.open{opacity:1; pointer-events:auto;}
+  .lightbox img{max-width:84%; max-height:78%; object-fit:contain; border-radius:10px; box-shadow:0 30px 80px rgba(0,0,0,0.6);
+    transform:scale(0.94); transition:transform 0.22s ease;}
+  .lightbox.open img{transform:scale(1);}
+  .lightbox video{max-width:84%; max-height:78%; border-radius:10px; box-shadow:0 30px 80px rgba(0,0,0,0.6);
+    transform:scale(0.94); transition:transform 0.22s ease; background:#000;}
+  .lightbox.open video{transform:scale(1);}
+  .lightbox .lb-caption{position:absolute; bottom:48px; left:50%; transform:translateX(-50%); color:#f2efe8;
+    font-family:var(--f-ui); font-size:14px; font-weight:600; text-align:center;}
+  .lightbox .lb-close{position:absolute; top:30px; right:38px; width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.12); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:20px; cursor:pointer; border:1px solid rgba(255,255,255,0.25); transition:background 0.15s ease;}
+  .lightbox .lb-close:hover{background:rgba(255,255,255,0.22);}
+
+  @media (prefers-reduced-motion: reduce){.window,.dock-item img,.folder{transition:none !important;}}
+
+
+/* ==========================================================
+   MOBILE RESPONSIVE VERSION — phones only
+   ========================================================== */
+@media screen and (max-width: 768px) {
+  html,body{width:100%;height:100%;margin:0;overflow:hidden;}
+  .stage-wrap,.stage,.desktop{width:100vw;height:100dvh;min-height:100dvh;overflow:hidden;}
+  .desktop > .wallpaper-img,.wallpaper-distort{width:100%;height:100%;object-fit:cover;}
+
+  .menubar{height:30px;padding:0 10px;font-size:10px;}
+  .menubar .left{gap:10px;}
+  .menubar .left span:not(.appname):not(.apple){display:none;}
+  .menubar .right{gap:7px;font-size:9px;}
+
+  .widget-photo-frame{top:52px;left:16px;width:82px;height:78px;border-radius:11px;}
+  .widget-clock-wrap{top:52px;left:108px;width:82px;height:78px;border-radius:11px;}
+  .widget-clock{display:none;}
+  .widget-caption{font-size:8px;}
+  .widget-weather{top:164px;left:16px;width:174px;height:auto;border-radius:12px;}
+
+  .folders{position:absolute;top:305px;right:14px;left:auto;bottom:auto;width:145px;display:grid;grid-template-columns:repeat(2,60px);column-gap:12px;row-gap:18px;justify-content:end;}
+  .folders .folder{position:relative !important;top:auto !important;right:auto !important;bottom:auto !important;left:auto !important;transform:none !important;width:54px;}
+  .folder img{width:40px;}
+  .folder-label{font-size:8.5px;line-height:1.15;padding:1px 3px;}
+
+  .dock{bottom:max(14px,env(safe-area-inset-bottom));gap:7px;padding:7px 10px;border-radius:16px;max-width:calc(100vw - 20px);}
+  .dock-item img{width:31px;height:31px;border-radius:8px;}
+  .dock-sep{height:27px;margin:0 1px;}
+  .dock-tip{display:none;}
+  .dock-item:hover img{transform:none;}
+  .copyright-notice{left:8px;bottom:4px;font-size:7px;}
+
+  .window,.doc-window,.gallery-window,.project-viewer,#win-worldbuilding,#win-vwb-project1,#win-vwb-project2,#win-archive,#win-timeline{width:calc(100vw - 20px) !important;max-width:calc(100vw - 20px) !important;height:auto;max-height:calc(100dvh - 70px);top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);}
+  .window.open{transform:translate(-50%,-50%) scale(1);}
+  .win-bar{height:30px;padding:0 10px;}
+  .win-title{font-size:10px;}
+  .dot{width:9px;height:9px;}
+  .doc-body{height:calc(100dvh - 110px) !important;max-height:calc(100dvh - 110px);padding:22px 18px 35px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .gal-body,.yt-body,.pv-body{height:calc(100dvh - 130px);max-height:calc(100dvh - 130px);padding:14px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .gal-grid{grid-template-columns:1fr;gap:12px;}
+  .gal-thumb{height:auto;min-height:140px;}
+  .pv-body{gap:14px;}
+  .pv-shot img,.pv-shot video{width:100%;height:auto;}
+  .flyer-title{font-size:24px;}
+  .collage-title span{font-size:31px;}
+  .arrow-cols,.sticky-grid{grid-template-columns:1fr;}
+  .hobby-stage{width:100%;height:300px;}
+  .hobby-card{padding:18px;}
+  .hobby-title{font-size:28px;}
+  .hobby-photo-wrap{width:105px;height:135px;}
+  .lightbox img,.lightbox video{max-width:94%;max-height:80%;}
+  .lightbox .lb-close{top:18px;right:18px;}
+}
+
+</style>
+</head>
+<body>
+
+<div class="stage-wrap">
+  <div class="stage" id="stage">
+
+    <div id="bootScreen">
+      <img src="assets/images/image-01.png" alt="" style="width:120px; height:120px; border-radius:50%; margin-bottom:48px; box-shadow:0 8px 30px rgba(0,0,0,0.4);">
+      <div class="boot-text">Shambhavi's Desktop Loading</div>
+      <div class="boot-bar-track"><div class="boot-bar-fill"></div></div>
+    </div>
+
+    <div class="call-badge" id="callBadge">
+      +91 92059 29055
+      <div class="call-badge-more" data-window="win-contact">More ways to reach me →</div>
+    </div>
+
+    <div id="tourSpotlight" style="opacity:0;"></div>
+    <div id="tourBubble" style="opacity:0;">
+      <div class="tour-step" id="tourStepLabel">STEP 1 OF 3</div>
+      <div class="tour-text" id="tourTextLabel"></div>
+      <div class="tour-actions">
+        <button class="tour-skip" id="tourSkipBtn">Skip</button>
+        <button class="tour-next" id="tourNextBtn">Next</button>
+      </div>
+    </div>
+
+    <svg width="0" height="0" style="position:absolute;">
+      <filter id="waterDistort" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence id="waterTurb" type="fractalNoise" baseFrequency="0.010 0.015" numOctaves="2" seed="4" result="noise"/>
+        <feDisplacementMap id="waterDisp" in="SourceGraphic" in2="noise" scale="34" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </svg>
+
+    <div class="desktop">
+      <img class="wallpaper-img" src="assets/images/image-02.jpg" alt="">
+      <img class="wallpaper-distort" id="wallpaperDistort" src="assets/images/image-02.jpg" alt="">
+
+      <div class="menubar">
+        <div class="left">
+          <span class="apple"></span>
+          <span class="appname">Finder</span>
+          <span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span><span>Help</span>
+        </div>
+        <div class="right">
+          <span class="mic sym">◑</span>
+          <span class="wifi"><i></i><i></i><i></i><i></i></span>
+          <div class="batt"><div class="shell"><div class="fill"></div></div></div>
+          <span class="sym">⌕</span>
+          <span class="sym">▤</span>
+          <span id="mb-time">Wed 9 Sep 10:46</span>
+        </div>
+      </div>
+
+      <div class="widget-photo-frame" data-window="win-figma" title="Open Figma work" style="cursor:pointer;">
+        <img id="carouselA" src="assets/images/image-03.png" alt="Featured" style="opacity:1; z-index:2;">
+        <img id="carouselB" src="assets/images/image-04.png" alt="Featured" style="opacity:0; z-index:1;">
+      </div>
+      <div class="widget-caption" data-window="win-figma" title="Open Figma work" style="top:calc(72px + clamp(105px, 8.1vw, 122px) + 4px); left:32px; width:clamp(112px, 8.6vw, 130px); cursor:pointer;">Brands I've Worked With</div>
+      <div class="widget-clock-wrap">
+        <img src="assets/images/image-05.png" alt="Clock widget">
+        <div class="clock-hand hour" id="clockHour"></div>
+        <div class="clock-hand minute" id="clockMinute"></div>
+        <div class="clock-hand second" id="clockSecond"></div>
+        <div class="clock-center-dot"></div>
+      </div>
+      <div class="widget-caption" style="top:calc(72px + clamp(105px, 8.1vw, 122px) + 4px); left:calc(32px + clamp(112px, 8.6vw, 130px) + 14px); width:clamp(112px, 8.6vw, 130px);">Clock</div>
+      <img class="widget-weather" src="assets/images/image-06.png" alt="Weather widget">
+
+      <div class="folders">
+        <div class="folder" data-window="win-about" style="top:50px; right:260px;">
+          <img src="assets/images/image-07.png" alt="">
+          <div class="folder-label">About Me</div>
+        </div>
+        <div class="folder" data-window="win-timeline" style="top:50px; right:150px;">
+          <img src="assets/images/image-08.png" alt="">
+          <div class="folder-label">My Timeline</div>
+        </div>
+        <div class="folder" data-window="win-worldbuilding" style="top:180px; right:260px;">
+          <img src="assets/images/image-09.png" alt="">
+          <div class="folder-label">Visual World-<br>Building</div>
+        </div>
+        <div class="folder" data-window="win-hobbies" style="top:180px; right:150px;">
+          <img src="assets/images/image-10.png" alt="">
+          <div class="folder-label">Hobbies</div>
+        </div>
+        <div class="folder" data-window="win-archive" style="top:310px; right:260px;">
+          <img src="assets/images/image-11.png" alt="">
+          <div class="folder-label">Research Work</div>
+        </div>
+      </div>
+
+      <div class="dock" id="dock">
+        <div class="dock-item" data-window="win-youtube"><div class="dock-tip">YouTube Project</div><img src="assets/images/image-12.png" alt="YouTube"><div class="dock-dot"></div></div>
+        <div class="dock-item" data-window="win-blender"><div class="dock-tip">Blender Project</div><img src="assets/images/image-13.png" alt="Blender"><div class="dock-dot"></div></div>
+        <div class="dock-item" data-window="win-premiere"><div class="dock-tip">Premiere Pro Project</div><img src="assets/images/image-14.png" alt="Premiere Pro"><div class="dock-dot"></div></div>
+        <div class="dock-item" data-window="win-photoshop"><div class="dock-tip">Photoshop Project</div><img src="assets/images/image-15.png" alt="Photoshop"><div class="dock-dot"></div></div>
+        <div class="dock-item" data-window="win-ae"><div class="dock-tip">After Effects Project</div><img src="assets/images/image-16.png" alt="After Effects"><div class="dock-dot"></div></div>
+        <div class="dock-item" data-window="win-illustrator"><div class="dock-tip">Illustrator Project</div><img src="assets/images/image-17.png" alt="Illustrator"><div class="dock-dot"></div></div>
+        <div class="dock-item" data-window="win-figma"><div class="dock-tip">Figma Project</div><img src="assets/images/image-18.png" alt="Figma"><div class="dock-dot"></div></div>
+        <div class="dock-item" id="callDockItem"><div class="dock-tip">Contact</div><img src="assets/images/image-19.png" alt="Contact"><div class="dock-dot"></div>
+        </div>
+        <div class="dock-item" data-mailto="shambhavituli@gmail.com"><div class="dock-tip">Mail</div><img src="assets/images/image-20.png" alt="Mail"><div class="dock-dot"></div></div>
+        <div class="dock-sep"></div>
+        <div class="dock-item" data-window="win-trash"><div class="dock-tip">Trash</div><img src="assets/images/image-21.png" alt="Trash"><div class="dock-dot"></div></div>
+      </div>
+
+      <div class="copyright-notice">© Shambhavi Tuli 2026 — All rights reserved</div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="lightbox" id="lightbox">
+      <div class="lb-close" id="lbClose">✕</div>
+      <img id="lbImg" src="" alt="">
+      <video id="lbVideo" controls playsinline style="display:none;"></video>
+      <div class="lb-caption" id="lbCaption"></div>
+    </div>
+
+    <div class="window project-viewer" id="win-project-viewer">
+      <div class="win-bar"><div class="dot red" data-close="win-project-viewer"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-back" data-close="win-project-viewer">←</div><div class="win-title" id="pvTitle">Project</div></div>
+      <div class="pv-body" id="pvBody"></div>
+    </div>
+
+    <!-- ABOUT ME -->
+    <div class="window doc-window" id="win-about">
+      <div class="win-bar"><div class="dot red" data-close="win-about"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">about-me.txt</div></div>
+      <div class="doc-body">
+        <div class="wl-folder">
+          <div class="wl-tab">SD—2026</div>
+          <div class="wl-side-tab">PORTFOLIO</div>
+          <div class="wl-side-tab-sub">2026 · UX/UI</div>
+          <div class="wl-stack-behind two"></div>
+          <div class="wl-stack-behind"></div>
+          <div class="wl-peek-photo"><img src="assets/images/image-22.jpg" alt=""></div>
+
+          <div class="wl-card">
+            <div class="wl-id-photo">
+              <div class="wl-paperclip"></div>
+              <img src="assets/images/image-22.jpg" alt="Shambhavi Tuli">
+            </div>
+            <div class="wl-headline">AB<span class="zero">0</span>UT ME LOG</div>
+
+            <div class="wl-row"><div class="wl-label">Name</div><div class="wl-value">Shambhavi Tuli</div></div>
+            <div class="wl-row"><div class="wl-label">Role</div><div class="wl-value">UX/UI Designer</div></div>
+            <div class="wl-row"><div class="wl-label">Based</div><div class="wl-value">New Delhi, India</div></div>
+            <div class="wl-row"><div class="wl-label">Education</div><div class="wl-value" style="font-size:15px;">B.Des. UX Design, Amity University</div></div>
+
+            <div class="wl-task-label">Currently</div>
+            <div class="wl-task-hand">UX Design student at Amity University, focused on building intuitive, user-centered digital experiences. It's been a fulfilling stretch of wireframes, hackathons, and real client redesigns.</div>
+            <div class="wl-task-typed">Background: B.Des. in UX Design, Amity University (2023–2027). Tools: Figma, Illustrator, Photoshop. Strengths: wireframing, UI design, usability thinking.</div>
+
+            <div class="wl-task-label">Skills</div>
+            <div class="chip-row" style="margin-bottom:18px;">
+              <span class="chip">UI Design</span>
+              <span class="chip">UX Design</span>
+              <span class="chip">Wireframing &amp; Prototyping</span>
+              <span class="chip">Figma &amp; Design Tools</span>
+              <span class="chip">Information Architecture</span>
+            </div>
+
+            <div class="wl-task-label">Awards &amp; Certifications</div>
+            <ul style="font-family:var(--f-ui); font-size:12px; line-height:1.9; color:#4a4335; margin:0 0 18px; padding-left:18px;">
+              <li>Certificate of Appreciation — Atriarc Project (Winning Team), Lloyd Institute of Engineering &amp; Technology</li>
+              <li>Certificate of Participation — UX Hackathon, IIIT Delhi</li>
+              <li>Best Delegate — Model United Nations (UNHRC Committee)</li>
+              <li>Certificate of Participation — International Model United Nations</li>
+            </ul>
+
+            <div style="text-align:right; font-family:var(--f-hand); font-size:22px; color:#6f6552; margin-top:10px;">— Shambhavi</div>
+          </div>
+        </div>
+
+        <div class="footer-caps" style="margin-top:18px; border-top:none;"><a href="mailto:shambhavituli@gmail.com" style="color:#e3d7be;">shambhavituli@gmail.com</a><span class="sep" style="background:#e3d7be;"></span><span style="color:#e3d7be;">9205929055</span></div>
+      </div>
+    </div>
+
+    <!-- MY TIMELINE -->
+    <div class="window doc-window" id="win-timeline">
+      <div class="win-bar"><div class="dot red" data-close="win-timeline"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">my-timeline.txt</div></div>
+      <div class="doc-body">
+        <div style="padding:28px 34px;">
+          <div class="doc-block">
+            <h3>experience</h3>
+            <div class="timeline-item"><div class="when">UI/UX Design Intern · Sep – Nov 2025</div><div class="what">NKRT &amp; Co. Chartered Accountants</div><div class="desc">Redesigned the firm's website for clarity and visual structure — ran a UX audit, then built wireframes and high-fidelity UI screens in Figma for key service pages, improving content hierarchy throughout.</div></div>
+            <div class="timeline-item"><div class="when">UI/UX Design Intern · May – Jun 2025</div><div class="what">Arogya Homoeo Centre</div><div class="desc">Designed the complete website interface for a clean, patient-friendly experience — wireframes and UI layouts in Figma for treatment pages, doctor profiles, and appointments, with clear navigation throughout.</div></div>
+            <div class="timeline-item"><div class="when">Lead Designer · Jul – Aug 2026</div><div class="what">Global Bharat Fund</div><div class="desc">Led the visual design direction and created brand-focused digital content, ensuring a consistent and impactful visual identity across platforms.</div></div>
+            <div class="timeline-item"><div class="when">Associate Designer · Jun – Jul 2026</div><div class="what">Global Shooting League (GSL)</div><div class="desc">Designed editorial layouts and magazine content, creating visually engaging sports-focused designs while maintaining a consistent visual identity.</div></div>
+            <div class="timeline-item"><div class="when">UI/UX Design Intern · Mar – May 2026</div><div class="what">Nebula DefSat</div><div class="desc">Designed intuitive UI/UX solutions, wireframes, and prototypes for defence technology projects.</div></div>
+            <div class="timeline-item"><div class="when">Internship · Aug – Sep 2026</div><div class="what">Corporate Impact Magazine</div><div class="desc">Designed editorial layouts, magazine covers, and publication-ready visual content for print and digital media.</div></div>
+          </div>
+          <div class="doc-block"><h3>education</h3><div class="timeline-item"><div class="when">2023 — 2027</div><div class="what">B.Des. in UX Design · Amity University, Noida</div><div class="desc">Coursework and projects spanning wireframing, UI design, and usability thinking.</div></div></div>
+          <div class="doc-block"><h3>awards &amp; certifications</h3><div class="timeline-item"><div class="desc">Certificate of Appreciation — ATRIARCH Project (Winning Team), Lloyd Institute of Engineering &amp; Technology<br>Certificate of Participation — UX Hackathon, IIIT Delhi<br>Best Delegate — Model United Nations (UNHRC Committee)<br>Certificate of Participation — International Model United Nations</div></div></div>
+          <a class="btn-download" href="assets/documents/document-01.pdf" download="Shambhavi_Tuli_Resume.pdf" style="display:inline-block; text-decoration:none; border:none;background:var(--ink);color:var(--paper);font-family:var(--f-ui);font-weight:700;font-size:13px;padding:10px 20px;border-radius:3px;cursor:pointer;">download full resume ↓</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUAL WORLD-BUILDING -->
+    <div class="window doc-window" id="win-worldbuilding">
+      <div class="win-bar"><div class="dot red" data-close="win-worldbuilding"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">visual-world-building.txt</div></div>
+      <div class="doc-body" style="background:#000; background-image:none; padding:0; display:block;">
+        <div style="position:relative;">
+          <img src="assets/images/image-23.jpg" alt="Visual World-Building" style="width:100%; height:auto; display:block;">
+          <div class="vwb-hotspot" data-window="win-vwb-project1" style="left:9%; top:59%; width:38%; height:31%;"></div>
+          <div class="vwb-hotspot" data-window="win-vwb-project2" style="left:51%; top:57%; width:41%; height:33%;"></div>
+          <div class="vwb-hotspot-badge" data-window="win-vwb-project1" style="left:28%; top:59%; cursor:pointer;">View Project</div>
+          <div class="vwb-hotspot-badge" data-window="win-vwb-project2" style="left:72%; top:59%; cursor:pointer;">View Project</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD-BUILDING PROJECT DEEP DIVES -->
+    <div class="window doc-window" id="win-vwb-project1">
+      <div class="win-bar"><div class="dot red" data-close="win-vwb-project1"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-back" data-back-close="win-vwb-project1" data-back-open="win-worldbuilding">←</div><div class="win-title">beyond-the-pitch.txt</div></div>
+      <div class="doc-body" style="background:#000; padding:0;">
+        <img src="assets/images/image-24.jpg" alt="Beyond the Pitch" style="width:100%; display:block;">
+        <img src="assets/images/image-25.jpg" alt="Oh To Be A Footballer moodboard" style="width:100%; display:block;">
+      </div>
+    </div>
+    <div class="window doc-window" id="win-vwb-project2">
+      <div class="win-bar"><div class="dot red" data-close="win-vwb-project2"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-back" data-back-close="win-vwb-project2" data-back-open="win-worldbuilding">←</div><div class="win-title">taking-dune-beyond-the-screen.txt</div></div>
+      <div class="doc-body" style="background:#000; padding:0;">
+        <img src="assets/images/image-26.jpg" alt="Taking Dune Beyond The Screen" style="width:100%; display:block;">
+        <img src="assets/images/image-27.jpg" alt="Eyes of Ibad lens concept" style="width:100%; display:block;">
+      </div>
+    </div>
+
+    <!-- HOBBIES -->
+    <div class="window doc-window" id="win-hobbies">
+      <div class="win-bar"><div class="dot red" data-close="win-hobbies"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">hobbies.txt</div></div>
+      <div class="doc-body">
+        <div class="hobby-stage" id="hobbyStage">
+          <div class="hobby-card" data-idx="0">
+            <div class="hobby-text-col">
+              <div class="hobby-title">Love Reading Books</div>
+              <div class="hobby-job-value">Serial Reader, anything and<br>everything — Harry Potter to<br>The Changing World Order</div>
+              <div class="hobby-caption">READING</div>
+            </div>
+            <div class="hobby-photo-wrap"><div class="hobby-photo-scribble"></div><div class="hobby-clip">📎</div><div class="hobby-photo"><img src="assets/images/image-28.jpg" alt="Reading"></div></div>
+          </div>
+          <div class="hobby-card" data-idx="1">
+            <div class="hobby-text-col">
+              <div class="hobby-title">Born To Compete</div>
+              <div class="hobby-job-value">Competitive at heart —<br>skipping, table tennis,<br>skating, and tennis</div>
+              <div class="hobby-caption">SPORTS</div>
+            </div>
+            <div class="hobby-photo-wrap"><div class="hobby-photo-scribble"></div><div class="hobby-clip">📎</div><div class="hobby-photo"><img src="assets/images/image-29.jpg" alt="Sports"></div></div>
+          </div>
+          <div class="hobby-card" data-idx="2">
+            <div class="hobby-text-col">
+              <div class="hobby-title">Also a Dancer</div>
+              <div class="hobby-job-value">Dancer at heart — always<br>up for a studio session</div>
+              <div class="hobby-caption">DANCE</div>
+            </div>
+            <div class="hobby-photo-wrap"><div class="hobby-photo-scribble"></div><div class="hobby-clip">📎</div><div class="hobby-photo"><img src="assets/images/image-30.jpg" alt="Dance"></div></div>
+          </div>
+          <div class="hobby-hint">click the card ↺</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARCHIVE -->
+    <div class="window doc-window" id="win-archive">
+      <div class="win-bar"><div class="dot red" data-close="win-archive"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">research-work.txt</div></div>
+      <div class="doc-body" style="background:#000; background-image:none; padding:0; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        <div style="position:relative; width:100%; height:795px;">
+          <img src="assets/images/image-31.jpg" alt="Research Work" style="width:100%; height:100%; display:block;">
+          <a class="vwb-hotspot btn" href="https://atriarc.vercel.app" target="_blank" rel="noopener noreferrer" style="left:3.1%; top:82.3%; width:19.8%; height:4.7%;" title="Explore the App">EXPLORE THE APP →</a>
+          <a class="vwb-hotspot btn" href="https://drive.google.com/file/d/1K8Xf5NiF1h-49g4QV86Osmla_zqlMzF4/view?usp=sharing" target="_blank" rel="noopener noreferrer" style="left:3.1%; top:89.0%; width:19.8%; height:4.7%;" title="View Presentation">VIEW PRESENTATION →</a>
+          <a class="vwb-hotspot btn" href="https://drive.google.com/file/d/1ryT0RUO7wFKkMLPk-WYOnLw-RcKtlOAv/view?usp=sharing" target="_blank" rel="noopener noreferrer" style="left:77.3%; top:87.7%; width:19.8%; height:4.9%;" title="Read Research Paper">READ RESEARCH PAPER →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="window doc-window" id="win-contact">
+      <div class="win-bar"><div class="dot red" data-close="win-contact"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">contact.txt</div></div>
+      <div class="doc-body">
+        <div class="tape" style="top:-6px;left:calc(50% - 35px);transform:rotate(-2deg);"></div>
+        <div class="collage-title"><span class="c2">L</span><span class="c1">E</span><span class="c3">T</span><span class="c4">'</span><span class="c5">S</span> <span class="c1">T</span><span class="c2">A</span><span class="c4">L</span><span class="c3">K</span></div>
+        <p style="font-size:13.5px;line-height:1.7;max-width:420px;margin-bottom:20px;">Got a project in mind, or just want to say hello? My line's always open.</p>
+        <hr class="divider-dash">
+        <div class="arrow-list">
+          <div class="arrow-cols">
+            <div class="arrow-item"><div class="name">Phone</div><div class="desc"><a href="tel:+919205929055">+91 92059 29055</a></div></div>
+            <div class="arrow-item"><div class="name">Email</div><div class="desc">shambhavituli@gmail.com</div></div>
+                        <div class="arrow-item"><div class="name">Behance</div><div class="desc">behance.net/yourname</div></div>
+            <div class="arrow-item"><div class="name">LinkedIn</div><div class="desc"><a href="https://www.linkedin.com/in/shambhavi-tuli-73a839343" target="_blank" rel="noopener noreferrer">linkedin.com/in/shambhavi-tuli-73a839343</a></div></div>
+            <div class="arrow-item"><div class="name">Based in</div><div class="desc">New Delhi, India</div></div>
+          </div>
+        </div>
+        <div class="index-card">
+          <div class="line"><b>response time</b> — usually within 1–2 days</div>
+          <div class="line"><b>best for calls</b> — [ your preferred hours ]</div>
+          <div class="line"><b>urgent?</b> — say so in the subject line</div>
+        </div>
+        <div class="footer-caps"><a href="tel:+919205929055">call me</a><span class="sep"></span><a href="mailto:shambhavituli@gmail.com">email me</a></div>
+      </div>
+    </div>
+
+    <!-- GALLERY WINDOWS -->
+    <div class="window gallery-window" id="win-youtube">
+      <div class="win-bar"><div class="dot red" data-close="win-youtube"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">YouTube</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">YouTube — Lo-fi Channel</div><div class="app-sub">click the thumbnail to watch, scroll for more</div></div></div>
+      <div class="yt-body" id="youtube-body"></div>
+    </div>
+    <div class="window gallery-window" id="win-blender">
+      <div class="win-bar"><div class="dot red" data-close="win-blender"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">Blender</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">Blender — Work</div><div class="app-sub">3D modeling, renders, animation</div></div></div>
+      <div class="gal-body" id="blender-body"></div>
+    </div>
+    <div class="window gallery-window" id="win-premiere">
+      <div class="win-bar"><div class="dot red" data-close="win-premiere"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">Premiere Pro</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">Premiere Pro — Work</div><div class="app-sub">video editing, color, sound</div></div></div>
+      <div class="gal-body" id="premiere-body"></div>
+    </div>
+    <div class="window gallery-window" id="win-photoshop">
+      <div class="win-bar"><div class="dot red" data-close="win-photoshop"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">Photoshop</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">Photoshop — Work</div><div class="app-sub">photo editing, compositing, key art</div></div></div>
+      <div class="gal-body" id="photoshop-body"></div>
+    </div>
+    <div class="window gallery-window" id="win-ae">
+      <div class="win-bar"><div class="dot red" data-close="win-ae"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">After Effects</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">After Effects — Work</div><div class="app-sub">motion graphics, animation</div></div></div>
+      <div class="gal-body" id="ae-body"></div>
+    </div>
+    <div class="window gallery-window" id="win-illustrator">
+      <div class="win-bar"><div class="dot red" data-close="win-illustrator"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">Illustrator</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">Illustrator — Work</div><div class="app-sub">branding, logotype, vector illustration</div></div></div>
+      <div class="gal-body" id="illustrator-body"></div>
+    </div>
+    <div class="window gallery-window" id="win-figma">
+      <div class="win-bar"><div class="dot red" data-close="win-figma"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">Figma</div></div>
+      <div class="gal-toolbar"><div><div class="app-name">Figma — Work</div><div class="app-sub">process, NDA brands & personal UI/UX projects</div></div></div>
+      <div class="figma-tabs" role="tablist" aria-label="Figma work categories">
+        <button class="figma-tab active" data-figma-tab="bts">Behind the Scenes</button>
+        <button class="figma-tab" data-figma-tab="nda">NDA Brands</button>
+        <button class="figma-tab" data-figma-tab="personal">Personal Figma Projects</button>
+      </div>
+      <div class="gal-body bts-active" id="figma-body">
+        <section class="figma-panel active" data-figma-panel="bts"><div id="figma-bts-body"></div></section>
+        <section class="figma-panel" data-figma-panel="nda"><div id="figma-nda-body"></div></section>
+        <section class="figma-panel" data-figma-panel="personal"><div id="figma-personal-body"></div></section>
+      </div>
+    </div>
+    <div class="window figma-project-window" id="win-figma-project">
+      <div class="win-bar"><div class="dot red" data-close="win-figma-project"></div><div class="dot yellow"></div><div class="dot green"></div><button class="figma-back-btn" id="figma-project-back" type="button" aria-label="Back to Figma projects"><span class="arrow">←</span><span class="back-label">Figma Projects</span></button><div class="win-title" id="figma-project-title">Behind the Scenes</div></div>
+      <div class="figma-project-scroll" id="figma-project-scroll">
+        <section class="figma-project-cover">
+          <div class="figma-project-logo"><a id="figma-project-live-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open live website"><img id="figma-project-logo" src="" alt=""></a></div>
+          <div class="figma-project-name" id="figma-project-name"></div>
+          <div class="figma-scroll-hint">Scroll to reveal behind the scenes ↓</div>
+        </section>
+        <section class="figma-bts-reveal">
+          <div class="label">Behind the scenes · Figma workspace</div>
+          <img id="figma-project-bts" src="" alt="Behind the scenes Figma workspace">
+        </section>
+      </div>
+    </div>
+    <div class="window personal-case-window" id="win-personal-project">
+      <div class="win-bar"><div class="dot red" data-close="win-personal-project"></div><div class="dot yellow"></div><div class="dot green"></div><button class="figma-back-btn" id="personal-project-back" type="button" aria-label="Back to Personal Figma Projects"><span class="arrow">←</span><span class="back-label">Personal Projects</span></button><div class="win-title" id="personal-project-title">Personal Project</div></div>
+      <div class="personal-case-scroll" id="personal-case-scroll"><div class="personal-case-images" id="personal-case-images"></div></div>
+    </div>
+    <div class="window gallery-window" id="win-trash" style="width:420px;">
+      <div class="win-bar"><div class="dot red" data-close="win-trash"></div><div class="dot yellow"></div><div class="dot green"></div><div class="win-title">Trash</div></div>
+      <div class="empty-state" style="height:280px;"><div class="big">🗑 it's empty</div><div>nothing gets thrown away around here.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+
+  // ---------- boot loading screen ----------
+  (function(){
+    const boot = document.getElementById('bootScreen');
+    if(!boot) return;
+    setTimeout(() => {
+      boot.classList.add('hide');
+      startTour();
+      setTimeout(() => { boot.remove(); }, 750);
+    }, 3150);
+  })();
+
+  // ---------- guided onboarding tour ----------
+  function startTour(){
+    // NOTE: "seen once" gate disabled for now so it replays on every preview reload
+    // if(localStorage.getItem('portfolioTourSeen') === '1') return;
+
+    const spotlight = document.getElementById('tourSpotlight');
+    const bubble = document.getElementById('tourBubble');
+    const stepLabel = document.getElementById('tourStepLabel');
+    const textLabel = document.getElementById('tourTextLabel');
+    const nextBtn = document.getElementById('tourNextBtn');
+    const skipBtn = document.getElementById('tourSkipBtn');
+    function stageRectOf(el){
+      const s = stage.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return {
+        left: r.left - s.left,
+        top: r.top - s.top,
+        width: r.width,
+        height: r.height
+      };
+    }
+    function unionRect(rects){
+      const left = Math.min(...rects.map(r => r.left));
+      const top = Math.min(...rects.map(r => r.top));
+      const right = Math.max(...rects.map(r => r.left + r.width));
+      const bottom = Math.max(...rects.map(r => r.top + r.height));
+      return { left, top, width: right-left, height: bottom-top };
+    }
+
+    const steps = [
+      {
+        text: "Click on each icon here to see my work in that software — every app in this dock has real projects behind it.",
+        getRect: () => stageRectOf(document.getElementById('dock')),
+        pad: 14,
+        place: 'above'
+      },
+      {
+        text: "These folders hold more about me — my timeline, hobbies, research, and behind-the-scenes work.",
+        getRect: () => unionRect(Array.from(document.querySelectorAll('.folder')).map(stageRectOf)),
+        pad: 16,
+        place: 'left'
+      },
+      {
+        text: "These are all the brands I've worked with.",
+        getRect: () => stageRectOf(document.querySelector('.widget-photo-frame')),
+        pad: 10,
+        place: 'below'
+      }
+    ];
+
+    let step = 0;
+
+    function render(){
+      const s = steps[step];
+      const r = s.getRect();
+      const pad = s.pad;
+      const box = { left: r.left - pad, top: r.top - pad, width: r.width + pad*2, height: r.height + pad*2 };
+
+      spotlight.style.left = box.left + 'px';
+      spotlight.style.top = box.top + 'px';
+      spotlight.style.width = box.width + 'px';
+      spotlight.style.height = box.height + 'px';
+      spotlight.style.opacity = 1;
+
+      const bubbleW = 270;
+      let bx, by, arrowSide;
+      if(s.place === 'above'){
+        bx = box.left + box.width/2 - bubbleW/2;
+        by = box.top - 14 - 140;
+        arrowSide = 'bottom';
+      } else if(s.place === 'below'){
+        bx = box.left + box.width/2 - bubbleW/2;
+        by = box.top + box.height + 24;
+        arrowSide = 'top';
+      } else if(s.place === 'left'){
+        bx = box.left - bubbleW - 26;
+        by = box.top + box.height/2 - 70;
+        arrowSide = 'right';
+      } else {
+        bx = box.left + box.width + 26;
+        by = box.top + box.height/2 - 70;
+        arrowSide = 'left';
+      }
+      const stageDims = stage.getBoundingClientRect();
+      bx = Math.max(16, Math.min(bx, stageDims.width - bubbleW - 16));
+      by = Math.max(16, Math.min(by, stageDims.height - 160));
+
+      bubble.style.left = bx + 'px';
+      bubble.style.top = by + 'px';
+      bubble.style.opacity = 1;
+      bubble.dataset.arrow = arrowSide;
+
+      stepLabel.textContent = 'STEP ' + (step+1) + ' OF ' + steps.length;
+      textLabel.textContent = s.text;
+      nextBtn.textContent = (step === steps.length - 1) ? 'Got it' : 'Next';
+    }
+
+    function finish(){
+      spotlight.style.opacity = 0;
+      bubble.style.opacity = 0;
+      localStorage.setItem('portfolioTourSeen', '1');
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if(step === steps.length - 1){ finish(); return; }
+      step++;
+      render();
+    });
+    skipBtn.addEventListener('click', finish);
+
+    render();
+    window.addEventListener('resize', render);
+  }
+
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  function updateClock(){
+    const now = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let h = now.getHours();
+    let h12 = h % 12; if(h12 === 0) h12 = 12;
+    document.getElementById('mb-time').textContent = days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + h12 + ':' + pad(now.getMinutes());
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  // ---------- live analog clock, New Delhi (IST) time ----------
+  const clockHour = document.getElementById('clockHour');
+  const clockMinute = document.getElementById('clockMinute');
+  const clockSecond = document.getElementById('clockSecond');
+  function updateLiveClock(){
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(now);
+    const obj = {};
+    parts.forEach(p => { obj[p.type] = p.value; });
+    const h = parseInt(obj.hour, 10) % 12;
+    const m = parseInt(obj.minute, 10);
+    const s = parseInt(obj.second, 10);
+    const hourDeg = h * 30 + m * 0.5;
+    const minuteDeg = m * 6 + s * 0.1;
+    const secondDeg = s * 6;
+    clockHour.style.transform = 'rotate(' + hourDeg + 'deg)';
+    clockMinute.style.transform = 'rotate(' + minuteDeg + 'deg)';
+    clockSecond.style.transform = 'rotate(' + secondDeg + 'deg)';
+  }
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
+
+  // ---------- Hobbies flip-card stack ----------
+  (function(){
+    const stage = document.getElementById('hobbyStage');
+    if(!stage) return;
+    const cards = Array.from(stage.querySelectorAll('.hobby-card'));
+    let order = [0, 1, 2]; // front-to-back order, by data-idx
+
+    const slotStyle = [
+      { t: 'translate(0px,0px) rotate(0deg)', z: 3 },
+      { t: 'translate(6px,7px) rotate(-2.5deg)', z: 2 },
+      { t: 'translate(-6px,14px) rotate(2.5deg)', z: 1 }
+    ];
+
+    function render(){
+      order.forEach((cardIdx, slot) => {
+        const card = cards[cardIdx];
+        card.style.zIndex = slotStyle[slot].z;
+        card.style.transform = slotStyle[slot].t;
+      });
+    }
+    render();
+
+    function sendFrontToBack(){
+      const frontIdx = order[0];
+      const frontCard = cards[frontIdx];
+      // animate the front card through a flip while it heads to the back slot
+      const backSlot = slotStyle[2];
+      frontCard.style.zIndex = 5;
+      frontCard.style.transform = backSlot.t + ' rotateX(180deg)';
+      order.push(order.shift());
+      // move the rest forward one slot immediately (they slide up together)
+      order.forEach((cardIdx, slot) => {
+        if(cardIdx === frontIdx) return;
+        cards[cardIdx].style.zIndex = slotStyle[slot].z;
+        cards[cardIdx].style.transform = slotStyle[slot].t;
+      });
+      setTimeout(() => {
+        frontCard.style.transition = 'none';
+        frontCard.style.zIndex = slotStyle[2].z;
+        frontCard.style.transform = slotStyle[2].t;
+        void frontCard.offsetWidth;
+        frontCard.style.transition = '';
+      }, 620);
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        if(parseInt(card.style.zIndex || 0) === slotStyle[0].z){ sendFrontToBack(); }
+      });
+    });
+  })();
+
+  // ---------- featured photo carousel ----------
+  const carouselImages = [
+    'assets/images/image-03.png','assets/images/image-04.png','assets/images/image-32.png','assets/images/image-33.png',
+    'assets/images/image-34.png','assets/images/image-35.png','assets/images/image-36.png','assets/images/image-37.png'
+  ];
+  const layerA = document.getElementById('carouselA');
+  const layerB = document.getElementById('carouselB');
+  let carIndex = 1, aIsFront = true;
+  function nextCarousel(){
+    carIndex = (carIndex + 1) % carouselImages.length;
+    const front = aIsFront ? layerA : layerB;
+    const back = aIsFront ? layerB : layerA;
+    back.onload = () => {
+      back.style.zIndex = 2;
+      front.style.zIndex = 1;
+      back.style.opacity = 1;
+      front.style.opacity = 0;
+      aIsFront = !aIsFront;
+    };
+    back.src = carouselImages[carIndex];
+    setTimeout(nextCarousel, 7000);
+  }
+  setTimeout(nextCarousel, 7000);
+
+  // ---------- cursor-reactive water: distort the wallpaper directly ----------
+  const distortImg = document.getElementById('wallpaperDistort');
+  const dispMap = document.getElementById('waterDisp');
+  let curX = 0, curY = 0, targetX = 0, targetY = 0, hovering = false;
+  const MASK = 760;
+
+  function toStageCoords(clientX, clientY){
+    const stageRect = stage.getBoundingClientRect();
+    return { x: clientX - stageRect.left, y: clientY - stageRect.top };
+  }
+  document.getElementById('stage').addEventListener('mousemove', (e) => {
+    const p = toStageCoords(e.clientX, e.clientY);
+    targetX = p.x; targetY = p.y;
+    if(!hovering){ hovering = true; distortImg.classList.add('active'); }
+  });
+  document.getElementById('stage').addEventListener('mouseleave', () => {
+    hovering = false;
+    distortImg.classList.remove('active');
+  });
+  let lastFrameT = null;
+  function waterLoop(t){
+    if(lastFrameT === null) lastFrameT = t;
+    const dt = Math.min((t - lastFrameT) / 1000, 0.05);
+    lastFrameT = t;
+    const smoothing = 1 - Math.exp(-dt / 0.07);
+    curX += (targetX - curX) * smoothing;
+    curY += (targetY - curY) * smoothing;
+    const pos = (curX - MASK/2) + 'px ' + (curY - MASK/2) + 'px';
+    distortImg.style.maskPosition = pos;
+    distortImg.style.webkitMaskPosition = pos;
+    const pulse = 34 + Math.sin(t / 460) * 12;
+    dispMap.setAttribute('scale', pulse.toFixed(1));
+    requestAnimationFrame(waterLoop);
+  }
+  requestAnimationFrame(waterLoop);
+
+
+  const overlay = document.getElementById('overlay');
+  let topZ = 21;
+
+  // ---------- call badge ----------
+  (function(){
+    const item = document.getElementById('callDockItem');
+    const badge = document.getElementById('callBadge');
+    if(!item || !badge) return;
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      badge.classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+      if(!item.contains(e.target) && !badge.contains(e.target)) badge.classList.remove('show');
+    });
+  })();
+  function setDockDot(id, on){
+    const item = document.querySelector('.dock-item[data-window="' + id + '"]');
+    if(!item) return;
+    const dot = item.querySelector('.dock-dot');
+    if(dot) dot.classList.toggle('on', on);
+  }
+  function openWindow(id){
+    const win = document.getElementById(id);
+    if(!win) return;
+    win.style.zIndex = ++topZ;
+    win.classList.add('open');
+    overlay.classList.add('show');
+    setDockDot(id, true);
+  }
+  function closeWindow(id){
+    const win = document.getElementById(id);
+    if(!win) return;
+    win.classList.remove('open');
+    win.querySelectorAll('video').forEach(v => v.pause());
+    const anyOpen = document.querySelectorAll('.window.open').length > 0;
+    if(!anyOpen) overlay.classList.remove('show');
+    setDockDot(id, false);
+  }
+  function closeTop(){
+    const opens = Array.from(document.querySelectorAll('.window.open'));
+    if(opens.length){
+      let top = opens[0];
+      opens.forEach(w => { if(parseInt(w.style.zIndex||0) > parseInt(top.style.zIndex||0)) top = w; });
+      closeWindow(top.id);
+    }
+  }
+  document.querySelectorAll('[data-window]').forEach(el => {
+    el.addEventListener('click', () => {
+      if(el.dataset.suppressClick === '1'){ el.dataset.suppressClick = ''; return; }
+      document.querySelectorAll('.folder').forEach(f => f.classList.remove('selected'));
+      if(el.classList.contains('folder')) el.classList.add('selected');
+      openWindow(el.getAttribute('data-window'));
+    });
+  });
+  document.querySelectorAll('[data-mailto]').forEach(el => {
+    el.addEventListener('click', () => { window.location.href = 'mailto:' + el.getAttribute('data-mailto'); });
+  });
+
+  document.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', (e) => { e.stopPropagation(); closeWindow(el.getAttribute('data-close')); });
+  });
+  document.querySelectorAll('.win-back').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeWindow(el.getAttribute('data-back-close'));
+      openWindow(el.getAttribute('data-back-open'));
+    });
+  });
+  overlay.addEventListener('click', closeTop);
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape'){
+      if(lightbox.classList.contains('open')){ closeLightbox(); }
+      else { closeTop(); }
+    }
+  });
+  document.querySelectorAll('.window').forEach(win => {
+    win.addEventListener('mousedown', () => { win.style.zIndex = ++topZ; });
+  });
+
+  function renderVideoGallery(containerId, items, note){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    let html = '<div class="gal-grid">';
+    items.forEach(p => {
+      html += '<div class="gal-card clickable" data-video="' + p.video + '" data-title="' + p.title + '">' +
+        '<div class="gal-thumb"><img class="thumb-logo" src="' + p.poster + '" alt="' + p.title + '"></div>' +
+        '<div class="gal-info"><div class="t">' + p.title + '</div><div class="tag">' + p.tag + '</div></div>' +
+        '</div>';
+    });
+    html += '</div>';
+    if(note) html += '<div class="gal-note">' + note + '</div>';
+    el.innerHTML = html;
+  }
+
+  // ---------- full-size image / video lightbox ----------
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbVideo = document.getElementById('lbVideo');
+  const lbCaption = document.getElementById('lbCaption');
+  const lbClose = document.getElementById('lbClose');
+  function openLightbox(src, title){
+    lbVideo.pause(); lbVideo.removeAttribute('src'); lbVideo.load(); lbVideo.style.display = 'none';
+    lbImg.style.display = 'block';
+    lbImg.src = src;
+    lbCaption.textContent = title || '';
+    lightbox.classList.add('open');
+  }
+  function openLightboxVideo(src, title){
+    lbImg.style.display = 'none';
+    lbVideo.style.display = 'block';
+    lbVideo.src = src;
+    lbCaption.textContent = title || '';
+    lightbox.classList.add('open');
+  }
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    lbVideo.pause();
+  }
+  document.addEventListener('click', (e) => {
+    const vcard = e.target.closest('.gal-card[data-video]');
+    if(vcard){ openLightboxVideo(vcard.getAttribute('data-video'), vcard.getAttribute('data-title')); return; }
+    const card = e.target.closest('.gal-card[data-full]');
+    if(card){ openLightbox(card.getAttribute('data-full'), card.getAttribute('data-title')); return; }
+    if(e.target === lightbox){ closeLightbox(); }
+  });
+  lbClose.addEventListener('click', closeLightbox);
+
+  document.querySelectorAll('.win-bar').forEach(bar => {
+    let dragging = false, offX = 0, offY = 0;
+    const win = bar.closest('.window');
+    bar.addEventListener('mousedown', (e) => {
+      if(e.target.classList.contains('dot')) return;
+      dragging = true;
+      const rect = win.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      offX = e.clientX - rect.left;
+      offY = e.clientY - rect.top;
+      win.style.transition = 'none';
+    });
+    document.addEventListener('mousemove', (e) => {
+      if(!dragging) return;
+      const stageRect = stage.getBoundingClientRect();
+      let x = (e.clientX - stageRect.left) - offX;
+      let y = (e.clientY - stageRect.top) - offY;
+      win.style.left = x + 'px';
+      win.style.top = y + 'px';
+      win.style.transform = 'none';
+    });
+    document.addEventListener('mouseup', () => { if(dragging){ dragging = false; win.style.transition = ''; } });
+  });
+
+  // ---------- draggable desktop folders ----------
+  document.querySelectorAll('.folder').forEach(folder => {
+    let dragging = false, moved = false, startX = 0, startY = 0, origLeft = 0, origTop = 0;
+    folder.addEventListener('mousedown', (e) => {
+      dragging = true; moved = false;
+      startX = e.clientX; startY = e.clientY;
+      const stageRect = stage.getBoundingClientRect();
+      const folderRect = folder.getBoundingClientRect();
+      origLeft = folderRect.left - stageRect.left;
+      origTop = folderRect.top - stageRect.top;
+      folder.style.zIndex = 4;
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', (e) => {
+      if(!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+      if(moved){
+        folder.style.right = 'auto';
+        folder.style.left = (origLeft + dx) + 'px';
+        folder.style.top = (origTop + dy) + 'px';
+      }
+    });
+    document.addEventListener('mouseup', () => {
+      if(dragging && moved){ folder.dataset.suppressClick = '1'; }
+      dragging = false;
+    });
+  });
+
+  const pvStore = {};
+  function renderProjectGallery(containerId, projects){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    pvStore[containerId] = projects;
+    let html = '<div class="gal-grid">';
+    projects.forEach((p, i) => {
+      html += '<div class="gal-card clickable" data-pv-store="' + containerId + '" data-pv-index="' + i + '">' +
+        '<div class="gal-thumb"><img class="thumb-logo" src="' + p.thumb + '" alt="' + p.title + '"></div>' +
+        '<div class="gal-info"><div class="t">' + p.title + '</div><div class="tag">' + p.tag + '</div></div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function openProjectViewer(containerId, index){
+    const p = pvStore[containerId][index];
+    document.getElementById('pvTitle').textContent = p.title;
+    let html = '';
+    if(p.desc) html += '<div class="pv-desc">' + p.desc + '</div>';
+    p.images.forEach(im => {
+      html += '<div class="pv-shot">';
+      if(im.type === 'video'){
+        html += '<video controls playsinline preload="metadata" src="' + im.src + '"></video>';
+      } else {
+        html += '<img src="' + im.src + '" alt="' + (im.label||'') + '">';
+      }
+      if(im.label) html += '<div class="pv-label">' + im.label + '</div>';
+      html += '</div>';
+    });
+    document.getElementById('pvBody').innerHTML = html;
+    document.getElementById('pvBody').scrollTop = 0;
+    openWindow('win-project-viewer');
+  }
+  document.addEventListener('click', (e) => {
+    const pv = e.target.closest('.gal-card[data-pv-store]');
+    if(pv){ openProjectViewer(pv.getAttribute('data-pv-store'), parseInt(pv.getAttribute('data-pv-index'))); return; }
+  });
+
+  const palettes = [['#b1502f','#7d3a20'],['#3a5a8c','#22385c'],['#8a9b6f','#5c6b48'],['#c98a87','#96605d'],['#dea63f','#a67722'],['#7fabc4','#4c7996']];
+  function projectSet(tool, n){
+    const arr = [];
+    for(let i=1;i<=n;i++){
+      const p = palettes[(i-1) % palettes.length];
+      arr.push({ title: 'Project ' + String.fromCharCode(64+i), tag: tool + ' · concept ' + i, c1: p[0], c2: p[1] });
+    }
+    return arr;
+  }
+  function renderGallery(containerId, tool, count, note){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    const set = projectSet(tool, count);
+    let html = '<div class="gal-grid">';
+    set.forEach(p => {
+      html += '<div class="gal-card"><div class="gal-thumb" style="background:linear-gradient(150deg,' + p.c1 + ',' + p.c2 + ')">[ ' + tool + ' placeholder ]</div><div class="gal-info"><div class="t">' + p.title + '</div><div class="tag">' + p.tag + '</div></div></div>';
+    });
+    html += '</div><div class="gal-note">' + note + '</div>';
+    el.innerHTML = html;
+  }
+  function renderYoutube(containerId, hero, entries){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    let html = '<a class="yt-hero" href="' + hero.link + '" target="_blank" rel="noopener noreferrer">' +
+      '<img class="yt-hero-img" src="' + hero.img + '" alt="' + hero.title + '">' +
+      '<div class="play"></div>' +
+      '<div class="yt-hero-title">' + hero.title + '</div></a>';
+    html += '<div class="yt-feed">';
+    entries.forEach(e => {
+      html += '<div class="yt-entry">';
+      if(e.img) html += '<img src="' + e.img + '" alt="">';
+      if(e.text) html += '<div class="txt">' + e.text + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  renderYoutube('youtube-body',
+    { img: 'assets/images/image-38.jpg', title: 'Train Scene — Ep. 1 · Lo-fi Beats', link: 'https://www.youtube.com/watch?v=muWquK7TqMY&t=1s' },
+    [
+      { img: 'assets/images/image-39.jpg', text: null },
+      { img: 'assets/images/image-40.jpg', text: null },
+      { img: 'assets/images/image-41.jpg', text: null },
+      { img: 'assets/images/image-42.jpg', text: null }
+    ]
+  );
+  renderProjectGallery('blender-body', [
+    { title: 'Splushy — Fluffy Character Render', tag: 'Blender · character render', thumb: 'assets/images/image-43.jpg',
+      desc: 'A soft, fur-shaded character render — built and lit entirely in Blender.',
+      images: [
+        { src: 'assets/images/image-43.jpg', label: 'Final Render' },
+        { src: 'assets/images/image-44.jpg', label: 'Blender Workspace' }
+      ]
+    },
+    { title: 'Spider Bot — Walk Cycle', tag: 'Blender · rigging & animation', thumb: 'assets/images/image-45.jpg',
+      desc: 'A rigged spider-bot walk cycle, animated along a bezier path with IK targets on each leg.',
+      images: [
+        { src: 'assets/videos/video-01.mp4', type: 'video', label: 'Walk Cycle Animation' },
+        { src: 'assets/images/image-46.jpg', label: 'Blender Workspace' }
+      ]
+    },
+    { title: 'Ocean Buoy — Environment Render', tag: 'Blender · environment & lighting', thumb: 'assets/images/image-47.jpg',
+      desc: 'A lit buoy scene on open water at dusk — sculpted terrain, water shading, and lighting all built in Blender.',
+      images: [
+        { src: 'assets/videos/video-02.mp4', type: 'video', label: 'Final Animation' },
+        { src: 'assets/images/image-47.jpg', label: 'Final Render' },
+        { src: 'assets/images/image-48.jpg', label: 'Blender Workspace' },
+        { src: 'assets/images/image-49.jpg', label: 'Blender Workspace' }
+      ]
+    }
+  ]);
+  function renderLinkedVideoGallery(containerId, items, note){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    let html = '<div class="gal-grid">';
+    items.forEach(p => {
+      html += '<a class="gal-card linked" href="' + p.link + '" target="_blank" rel="noopener noreferrer">' +
+        '<div class="gal-thumb"><img class="thumb-logo" src="' + p.thumb + '" alt="' + p.title + '"><div class="gal-play-badge"></div></div>' +
+        '<div class="gal-info"><div class="t">' + p.title + '</div><div class="tag">' + p.tag + '</div></div>' +
+        '</a>';
+    });
+    html += '</div>';
+    if(note) html += '<div class="gal-note">' + note + '</div>';
+    el.innerHTML = html;
+  }
+  renderLinkedVideoGallery('premiere-body', [
+    { thumb: 'assets/images/image-50.jpg', title: 'Hold On To The Life You Know', tag: 'YouTube Short · click to watch', link: 'https://youtube.com/shorts/qD8cDwICZGo' },
+    { thumb: 'assets/images/image-51.jpg', title: 'Rainy Night Vending Machine', tag: 'YouTube Short · click to watch', link: 'https://youtube.com/shorts/s6SxP4VUmRM' },
+    { thumb: 'assets/images/image-52.jpg', title: 'City Lights, Headphones On', tag: 'YouTube Short · click to watch', link: 'https://youtube.com/shorts/QzbYwZb2aoo' },
+    { thumb: 'assets/images/image-53.jpg', title: 'Purple Lantern Street', tag: 'YouTube Short · click to watch', link: 'https://youtube.com/shorts/UMIpUnWceZ8' },
+    { thumb: 'assets/images/image-54.jpg', title: 'Late Night Desk', tag: 'YouTube Short · click to watch', link: 'https://youtube.com/shorts/0_Lnz4S1U5Y' },
+    { thumb: 'assets/images/image-55.jpg', title: 'Reading by the City Window', tag: 'YouTube Short · click to watch', link: 'https://youtube.com/shorts/U7r-IMHCew8' }
+  ], 'Each card opens the real Short on the lo-fi channel in a new tab.');
+  renderImageGallery('photoshop-body', [
+    { img: 'assets/images/image-56.jpg', title: 'Waiting — Poster Design', tag: 'Photoshop · poster design' },
+    { img: 'assets/images/image-57.jpg', title: 'State of Uniformity — Concept Poster', tag: 'Photoshop · surreal poster design' },
+    { img: 'assets/images/image-58.jpg', title: 'Death of Messalina — Duotone Poster', tag: 'Photoshop · duotone poster design' },
+    { img: 'assets/images/image-59.jpg', title: 'Titan — Album Art Concept', tag: 'Photoshop · album art design' },
+    { img: 'assets/images/image-60.jpg', title: 'Human — Editorial Poster', tag: 'Photoshop · editorial poster design' },
+    { img: 'assets/images/image-61.jpg', title: 'Vogue Milan — Magazine Cover Concept', tag: 'Photoshop · magazine design (personal study)' },
+    { img: 'assets/images/image-62.jpg', title: 'Redemption — Album Art Concept', tag: 'Photoshop · album art design' },
+    { img: 'assets/images/image-63.jpg', title: 'Graneds — Album Art Concept', tag: 'Photoshop · album art design' },
+    { img: 'assets/images/image-64.jpg', title: 'Lamborghini Countach — Ad Recreation', tag: 'Photoshop · ad design (personal study)' }
+  ]);
+  renderVideoGallery('ae-body', [
+    { poster: 'assets/images/image-65.jpg', video: 'assets/videos/video-03.mp4', title: 'Artist — Kinetic Typography', tag: 'After Effects · kinetic typography' },
+    { poster: 'assets/images/image-66.jpg', video: 'assets/videos/video-04.mp4', title: 'Grind — 3D Neon Text', tag: 'After Effects · text animation' },
+    { poster: 'assets/images/image-67.jpg', video: 'assets/videos/video-05.mp4', title: 'Men In Black — Poster Animation', tag: 'After Effects · poster animation (personal study)' },
+    { poster: 'assets/images/image-68.jpg', video: 'assets/videos/video-06.mp4', title: 'Kill Bill — Poster Reveal', tag: 'After Effects · poster animation (personal study)' },
+    { poster: 'assets/images/image-69.jpg', video: 'assets/videos/video-07.mp4', title: 'Daredevil — Title Intro', tag: 'After Effects · poster animation (personal study)' }
+  ]);
+  function renderImageGallery(containerId, items, note){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    let html = '<div class="gal-grid">';
+    items.forEach(p => {
+      html += '<div class="gal-card clickable" data-full="' + p.img + '" data-title="' + p.title + '">' +
+        '<div class="gal-thumb"><img class="thumb-logo" src="' + p.img + '" alt="' + p.title + '"></div>' +
+        '<div class="gal-info"><div class="t">' + p.title + '</div><div class="tag">' + p.tag + '</div></div>' +
+        '</div>';
+    });
+    html += '</div>';
+    if(note) html += '<div class="gal-note">' + note + '</div>';
+    el.innerHTML = html;
+  }
+  renderImageGallery('illustrator-body', [
+    { img: 'assets/images/image-70.jpg', title: 'Dreams — Layered Type', tag: 'Illustrator · typography' },
+    { img: 'assets/images/image-71.jpg', title: 'Boom — 3D Bubble Type', tag: 'Illustrator · 3D typography' },
+    { img: 'assets/images/image-72.jpg', title: 'Mad Over Donuts — Logo Concept', tag: 'Illustrator · logo design' },
+    { img: 'assets/images/image-73.jpg', title: 'Nike — 3D Logo Study', tag: 'Illustrator · 3D typography (personal study)' },
+    { img: 'assets/images/image-74.jpg', title: 'Puma — 3D Logo Study', tag: 'Illustrator · 3D typography (personal study)' },
+    { img: 'assets/images/image-75.jpg', title: 'Welcome — Retro Badge', tag: 'Illustrator · typography' },
+    { img: 'assets/images/image-76.jpg', title: 'Slay — Layered Type', tag: 'Illustrator · typography' },
+    { img: 'assets/images/image-77.jpg', title: 'Squeez — Logotype', tag: 'Illustrator · logotype' },
+    { img: 'assets/images/image-78.jpg', title: 'Hot Sauce — Package Type', tag: 'Illustrator · packaging typography' }
+  ]);
+  function renderCompanies(containerId, companies){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    let html = '<div class="gal-grid">';
+    companies.forEach(c => {
+      c.projects.forEach(p => {
+        const thumbInner = c.logo
+          ? '<img class="thumb-logo" src="' + c.logo + '" alt="' + c.name + '">'
+          : '[ ' + c.name + ' ]';
+        html += '<a class="gal-card linked" href="' + p.link + '" target="_blank" rel="noopener noreferrer" title="' + p.desc + '">' +
+          '<div class="visit-chip">Visit ↗</div>' +
+          '<div class="gal-thumb">' + thumbInner + '</div>' +
+          '<div class="gal-info"><div class="t">' + c.name + '</div><div class="tag">Figma · ' + p.title + '</div></div>' +
+          '</a>';
+      });
+    });
+    html += '</div><div class="gal-note">NDA note — actual screens can\'t be shown, so each card links straight through to the company itself. Hover a card for the role, click to visit.</div>';
+    el.innerHTML = html;
+  }
+  renderCompanies('figma-nda-body', [
+    { name: 'Mehnaaz', logo: 'assets/images/image-79.jpg', projects: [
+      { title: 'Design Intern', desc: 'Design Internship — Visual & Digital Design', link: 'https://www.mehnaaz.in/' }
+    ]},
+    { name: 'NKRT & Co.', logo: 'assets/images/image-85.jpg', projects: [
+      { title: 'Lead UX/UI Designer', desc: 'Website Redesign — UX/UI & Digital Experience', link: 'https://www.nkrt.net/' }
+    ]},
+    { name: 'Carat 24', logo: 'assets/images/image-80.jpg', projects: [
+      { title: 'Design Intern', desc: 'Design Internship — Visual & Brand Design', link: 'https://www.instagram.com/carat24.in/' }
+    ]}
+  ]);
+
+
+  // ---------- Figma hub + Behind the Scenes project viewer ----------
+  const figmaBehindScenes = [
+    { name:'Corporate Impact', logo:'assets/images/image-81.jpg', image:'assets/images/bts-corporate-impact.png', link:'https://corporateimpact.in/' },
+    { name:'Global Bharat Fund', logo:'assets/images/image-82.jpg', image:'assets/images/bts-global-bharat-fund.png', link:'https://globalbharatfund.com/' },
+    { name:'Global Shooting League', logo:'assets/images/image-84.jpg', image:'assets/images/bts-global-shooting-league.jpeg', link:'https://globalshootingleague.com/' },
+    { name:'Labora Diamonds', logo:'assets/images/image-86.jpg', image:'assets/images/bts-labora.png', link:'https://laboradiamonds.com' }
+  ];
+
+  (function renderFigmaBTS(){
+    const el=document.getElementById('figma-bts-body');
+    if(!el) return;
+    let html='<div class="figma-section-intro"><div class="kicker">Figma · Process</div><h3>Behind the Scenes</h3><p>Selected professional projects — open a project, then scroll to reveal the working Figma canvas.</p></div><div class="gal-grid">';
+    figmaBehindScenes.forEach((p,i)=>{
+      html += '<div class="gal-card bts-card" data-bts-index="'+i+'">' +
+        '<div class="bts-chip">Open ↗</div>' +
+        '<div class="gal-thumb"><img class="thumb-logo" src="'+p.logo+'" alt="'+p.name+'"></div>' +
+        '<div class="gal-info"><div class="t">'+p.name+'</div><div class="tag">Figma · Behind the Scenes</div></div></div>';
+    });
+    html+='</div>';
+    el.innerHTML=html;
+  })();
+
+  document.querySelectorAll('.figma-tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.figma-tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.figma-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      const panel=document.querySelector('[data-figma-panel="'+btn.dataset.figmaTab+'"]');
+      if(panel) panel.classList.add('active');
+      const body=document.getElementById('figma-body'); if(body){ body.scrollTop=0; body.classList.toggle('bts-active', btn.dataset.figmaTab==='bts'); body.classList.toggle('personal-active', btn.dataset.figmaTab==='personal'); const btsBody=document.getElementById('figma-bts-body'); if(btsBody) btsBody.scrollTop=0; }
+    });
+  });
+
+  const figmaBackBtn=document.getElementById('figma-project-back');
+  if(figmaBackBtn){
+    figmaBackBtn.addEventListener('click',()=>{
+      const projectWin=document.getElementById('win-figma-project');
+      if(projectWin){ projectWin.style.display='none'; projectWin.classList.remove('open'); }
+      if(typeof openWindow==='function') openWindow('win-figma');
+      else { const hub=document.getElementById('win-figma'); if(hub){hub.style.display='block'; hub.classList.add('open');} }
+    });
+  }
+
+  document.addEventListener('click',e=>{
+    const card=e.target.closest('.bts-card');
+    if(!card) return;
+    const p=figmaBehindScenes[Number(card.dataset.btsIndex)];
+    if(!p) return;
+    document.getElementById('figma-project-title').textContent=p.name+' — Behind the Scenes';
+    document.getElementById('figma-project-name').textContent=p.name;
+    const logo=document.getElementById('figma-project-logo'); logo.src=p.logo; logo.alt=p.name+' logo';
+    const liveLink=document.getElementById('figma-project-live-link'); if(liveLink){liveLink.href=p.link; liveLink.setAttribute('aria-label','Open '+p.name+' live website');}
+    const bts=document.getElementById('figma-project-bts'); bts.src=p.image; bts.alt=p.name+' Figma behind the scenes';
+    const scroll=document.getElementById('figma-project-scroll'); if(scroll) scroll.scrollTop=0;
+    if(typeof openWindow==='function') openWindow('win-figma-project');
+    else {
+      const w=document.getElementById('win-figma-project');
+      if(w){w.style.display='block'; w.classList.add('open');}
+    }
+  });
+
+  // ---------- Personal Figma Projects ----------
+  const personalFigmaProjects = [
+    {name:'Apple Music — i-Track Listening Streaks', cover:'assets/images/personal-projects/apple-music-1.png', images:['assets/images/personal-projects/apple-music-1.png','assets/images/personal-projects/apple-music-2.jpeg','assets/images/personal-projects/apple-music-3.jpeg','assets/images/personal-projects/apple-music-4.jpeg']},
+    {name:'Uber — Rethinking Ride Selection', cover:'assets/images/personal-projects/uber-1.png', images:['assets/images/personal-projects/uber-1.png','assets/images/personal-projects/uber-2.jpeg','assets/images/personal-projects/uber-3.jpeg','assets/images/personal-projects/uber-4.jpeg']},
+    {name:'Google Pay — Rethinking Secure Payments', cover:'assets/images/personal-projects/google-pay-1.png', images:['assets/images/personal-projects/google-pay-1.png','assets/images/personal-projects/google-pay-2.jpeg','assets/images/personal-projects/google-pay-3.jpeg','assets/images/personal-projects/google-pay-4.jpeg']},
+    {name:'Apple Fitness+ — Gamifying Everyday Movement', cover:'assets/images/personal-projects/apple-fitness-1.png', images:['assets/images/personal-projects/apple-fitness-1.png','assets/images/personal-projects/apple-fitness-2.png','assets/images/personal-projects/apple-fitness-3.jpeg','assets/images/personal-projects/apple-fitness-4.jpeg','assets/images/personal-projects/apple-fitness-5.png']}
+  ];
+  (function renderPersonalProjects(){
+    const el=document.getElementById('figma-personal-body'); if(!el) return;
+    let html='<div class="figma-section-intro"><div class="kicker">Figma · Personal Work</div><h3>Personal Projects</h3><p>Selected self-initiated UX concepts and product redesigns.</p></div><div class="personal-project-grid">';
+    personalFigmaProjects.forEach((p,i)=>{html+='<article class="personal-project-card" data-personal-index="'+i+'"><div class="personal-project-thumb"><img src="'+p.cover+'" alt="'+p.name+'"></div><div class="personal-project-meta"><div class="title">'+p.name+'</div><div class="sub">Open case study →</div></div></article>';});
+    el.innerHTML=html+'</div>';
+  })();
+  document.addEventListener('click',e=>{
+    const card=e.target.closest('.personal-project-card'); if(!card) return;
+    const p=personalFigmaProjects[Number(card.dataset.personalIndex)]; if(!p) return;
+    document.getElementById('personal-project-title').textContent=p.name;
+    document.getElementById('personal-case-images').innerHTML=p.images.map((src,i)=>'<img src="'+src+'" alt="'+p.name+' case study '+(i+1)+'">').join('');
+    const sc=document.getElementById('personal-case-scroll'); if(sc) sc.scrollTop=0;
+    if(typeof openWindow==='function') openWindow('win-personal-project'); else {const w=document.getElementById('win-personal-project');if(w){w.style.display='block';w.classList.add('open');}}
+  });
+  const personalBack=document.getElementById('personal-project-back'); if(personalBack){personalBack.addEventListener('click',()=>{
+    const w=document.getElementById('win-personal-project'); if(w){w.style.display='none';w.classList.remove('open');}
+    if(typeof openWindow==='function') openWindow('win-figma');
+    const tab=document.querySelector('[data-figma-tab="personal"]'); if(tab) tab.click();
+  });}
+
+</script>
+</body>
+</html>
